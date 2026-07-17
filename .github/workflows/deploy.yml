@@ -5,10 +5,7 @@
 #   VERCEL_ORG_ID       — from `vercel link` in frontend/, written to .vercel/project.json
 #   VERCEL_PROJECT_ID   — from `vercel link` in frontend/, written to .vercel/project.json
 #
-# These secrets do not exist yet in this repo. Until they are configured, this
-# workflow will fail at the "Pull Vercel environment" step — that's expected.
-# Vercel project linking is an interactive `vercel login` + `vercel link` done
-# once locally; it is not something CI can bootstrap on its own.
+# Project: harshit-wandhare-s-projects/atlas-ra (linked 2026-07-17).
 name: Deploy
 
 on:
@@ -17,6 +14,7 @@ on:
     paths:
       - "frontend/**"
       - ".github/workflows/deploy.yml"
+  workflow_dispatch: {}
 
 jobs:
   deploy:
