@@ -78,6 +78,63 @@ Next.js App Router. Views: Chat (submit goals, streamed responses), Activity (li
 event feed), Ledger (task table + states), Skills (procedural memory browser),
 Approvals (pending destructive actions).
 
+## 2.8 End-to-end task flow
+
+```mermaid
+sequenceDiagram
+    participant UI as Dashboard (Chat)
+    participant API as FastAPI (/goals)
+    participant Orch as Orchestrator
+    participant Skills as SkillStore
+    participant Prov as AgentProvider (claude/langgraph/ollama)
+    participant Ledger as Ledger (SQLite)
+    participant Critic as Critic
+    participant Bus as WebSocket Bus
+
+    UI->>API: POST /goals {goal}
+    API->>Orch: submit_goal(goal)
+    Orch->>Orch: _route(goal) -> team name
+    Orch->>Ledger: create_task(goal, team)
+    Orch-->>API: task_id
+    API-->>UI: {task_id}
+    Note over Orch: async _run() continues in background
+
+    Orch->>Skills: match(goal)
+    Skills-->>Orch: matched Skill playbooks (context)
+    loop up to settings.max_retries + 1 attempts
+        Orch->>Ledger: set_state(RUNNING)
+        Orch->>Prov: run(task_id, system_prompt, goal, tools, context)
+        loop per AgentEvent
+            Prov-->>Orch: AgentEvent (message_delta / tool_call / error)
+            Orch->>Ledger: log_step(event)
+            Orch->>Bus: sink(event)
+            Bus-->>UI: event over /ws
+        end
+        alt provider errored
+            Orch->>Orch: retry (loop again)
+        else transcript produced
+            Orch->>Ledger: set_state(REVIEW)
+            Orch->>Critic: review(goal, transcript)
+            Critic-->>Orch: Verdict(approved | feedback)
+            alt approved
+                Orch->>Ledger: set_state(DONE, result)
+            else revise
+                Orch->>Orch: goal += reviewer feedback, retry
+            end
+        end
+    end
+    Note over Orch,Ledger: retries exhausted -> set_state(ESCALATED)
+```
+
+Notes on what's real vs. simplified above: `_route` is a static keyword matcher
+(`Orchestrator._route` in `orchestrator/core.py`), not an LLM call. The Critic is a
+heuristic reviewer (empty-transcript / trailing-"error" checks) — see
+`teams/critic.py` — described in ADR-style terms as "verification" but not yet
+LLM-backed. Approval-gated tool execution (`ToolRegistry.execute` /
+`ApprovalQueue`) happens *inside* the provider's tool-call loop and is not shown
+as a separate box above; a `DESTRUCTIVE`-risk tool call blocks on
+`approval_queue.wait()` until a human resolves it via `POST /approvals/{id}`.
+
 ## 3. Observability & evals
 
 Every provider event maps to an OpenTelemetry span (task → step → tool call), exported
