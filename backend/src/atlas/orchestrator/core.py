@@ -16,6 +16,7 @@ from atlas.memory import Ledger, SkillStore
 from atlas.memory.episodic import TaskState
 from atlas.observability import traced_event
 from atlas.providers import get_provider
+from atlas.teams import Team
 from atlas.teams.critic import Critic
 from atlas.teams.ops import OpsTeam
 from atlas.teams.research import ResearchTeam
@@ -30,7 +31,7 @@ class Orchestrator:
         self._skills = skills
         self._sink = sink
         self._provider = get_provider(settings.provider)
-        self._teams = {
+        self._teams: dict[str, Team] = {
             "systems": SystemsTeam(),
             "research": ResearchTeam(),
             "ops": OpsTeam(),
@@ -49,7 +50,13 @@ class Orchestrator:
         """Keyword router. V3: replace with LLM classification (same signature)."""
         lowered = goal.lower()
         research_hints = ("research", "find", "paper", "compare", "read", "summarize", "watch")
-        ops_hints = ("install driver", "uninstall", "clean up", "organize files", "windows settings")
+        ops_hints = (
+            "install driver",
+            "uninstall",
+            "clean up",
+            "organize files",
+            "windows settings",
+        )
         if any(hint in lowered for hint in ops_hints):
             return "ops"
         if any(hint in lowered for hint in research_hints):
@@ -61,7 +68,7 @@ class Orchestrator:
         matched = self._skills.match(goal)
         context = "\n\n".join(f"# Skill: {s.name} v{s.version}\n{s.body}" for s in matched)
 
-        for attempt in range(settings.max_retries + 1):
+        for _attempt in range(settings.max_retries + 1):
             await self._transition(task_id, TaskState.RUNNING)
             transcript: list[str] = []
             failed = False

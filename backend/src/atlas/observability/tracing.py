@@ -3,15 +3,17 @@ so tracing never becomes a hard dependency of correctness."""
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Iterator
+from typing import Any
 
+_tracer: Any = None
 try:
     from opentelemetry import trace
 
     _tracer = trace.get_tracer("atlas")
 except ImportError:  # pragma: no cover
-    _tracer = None
+    pass
 
 
 @contextmanager

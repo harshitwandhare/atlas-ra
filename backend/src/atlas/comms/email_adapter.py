@@ -37,7 +37,7 @@ class ImapAdapter:
     def _password(self) -> str:
         import keyring
 
-        pw = keyring.get_password("atlas-email", self._user)
+        pw: str | None = keyring.get_password("atlas-email", self._user)
         if not pw:
             raise RuntimeError("Set the password: keyring set atlas-email <user>")
         return pw
@@ -51,16 +51,27 @@ class ImapAdapter:
         conn.select("INBOX")
         _, data = conn.search(None, f'(UNSEEN FROM "{sender_filter}")')
         results = []
-        for num in data[0].split():
-            _, msg_data = conn.fetch(num, "(RFC822)")
-            msg = email_lib.message_from_bytes(msg_data[0][1])
+        ids = data[0] if isinstance(data[0], bytes) else b""
+        for num in ids.split():
+            _, msg_data = conn.fetch(num.decode(), "(RFC822)")
+            raw = msg_data[0]
+            if not isinstance(raw, tuple):
+                continue
+            msg = email_lib.message_from_bytes(raw[1])
             body = ""
             for part in msg.walk():
                 if part.get_content_type() == "text/plain":
-                    body = part.get_payload(decode=True).decode(errors="replace")
+                    payload = part.get_payload(decode=True)
+                    if isinstance(payload, bytes):
+                        body = payload.decode(errors="replace")
                     break
             results.append(
-                Email(id=num.decode(), sender=msg["From"] or "", subject=msg["Subject"] or "", body=body)
+                Email(
+                    id=num.decode(),
+                    sender=msg["From"] or "",
+                    subject=msg["Subject"] or "",
+                    body=body,
+                )
             )
         conn.logout()
         return results

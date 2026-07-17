@@ -1,1 +1,2 @@
 {"version": "offline", "ts": "2026-07-17T08:39:46.134647+00:00", "mean": 1.0, "scores": {"lora_oom_recovery": 1.0, "streamdiffusion_torch_order": 1.0, "wan22_vram_math": 1.0}}
+{"version": "offline", "ts": "2026-07-17T09:24:59.195696+00:00", "mean": 1.0, "scores": {"lora_oom_recovery": 1.0, "streamdiffusion_torch_order": 1.0, "wan22_vram_math": 1.0}}

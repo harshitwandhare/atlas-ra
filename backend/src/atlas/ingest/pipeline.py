@@ -7,16 +7,18 @@ handler reports what to install instead of crashing the pipeline.
 from __future__ import annotations
 
 import uuid
+from collections.abc import Callable
 from pathlib import Path
 
 from atlas.ingest.procedures import extract_procedure
 from atlas.memory.semantic import Doc, SemanticStore
 
-_HANDLERS = {}
+_Handler = Callable[[Path], str]
+_HANDLERS: dict[str, _Handler] = {}
 
 
-def _register(*exts: str):
-    def deco(fn):
+def _register(*exts: str) -> Callable[[_Handler], _Handler]:
+    def deco(fn: _Handler) -> _Handler:
         for ext in exts:
             _HANDLERS[ext] = fn
         return fn
@@ -87,7 +89,11 @@ def ingest(source: str, store: SemanticStore, workdir: str = ".atlas_ingest") ->
     """
     if source.startswith(("http://", "https://")):
         sub_path = fetch_video_transcript(source, workdir)
-        text = _text(sub_path) if sub_path else f"[no subtitles found for {source}; queue Whisper ASR]"
+        text = (
+            _text(sub_path)
+            if sub_path
+            else f"[no subtitles found for {source}; queue Whisper ASR]"
+        )
     else:
         path = Path(source)
         handler = _HANDLERS.get(path.suffix.lower())

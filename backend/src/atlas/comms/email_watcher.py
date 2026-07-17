@@ -28,7 +28,9 @@ class ActionItem:
 
 
 class EmailWatcher:
-    def __init__(self, adapter: EmailAdapter, approvals: ApprovalQueue, contacts: list[str]) -> None:
+    def __init__(
+        self, adapter: EmailAdapter, approvals: ApprovalQueue, contacts: list[str]
+    ) -> None:
         self._adapter = adapter
         self._approvals = approvals
         self._contacts = contacts

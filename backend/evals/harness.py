@@ -38,8 +38,12 @@ def load_cases() -> list[Case]:
             Case(
                 name=path.stem,
                 goal=meta.get("goal", ""),
-                must_contain=[s.strip() for s in meta.get("must_contain", "").split("|") if s.strip()],
-                must_not_contain=[s.strip() for s in meta.get("must_not_contain", "").split("|") if s.strip()],
+                must_contain=[
+                    s.strip() for s in meta.get("must_contain", "").split("|") if s.strip()
+                ],
+                must_not_contain=[
+                    s.strip() for s in meta.get("must_not_contain", "").split("|") if s.strip()
+                ],
             )
         )
     return cases

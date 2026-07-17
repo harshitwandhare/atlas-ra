@@ -15,8 +15,13 @@ class FakeAdapter:
     def fetch_unread_from(self, sender_filter):
         return [
             Email(
-                id="1", sender="afs140330@utdallas.edu", subject="Onboarding",
-                body="Welcome!\nYour first task will be a local installation of stream diffusion.\nSee you Tuesday.",
+                id="1",
+                sender="afs140330@utdallas.edu",
+                subject="Onboarding",
+                body=(
+                    "Welcome!\nYour first task will be a local installation "
+                    "of stream diffusion.\nSee you Tuesday."
+                ),
             )
         ]
 

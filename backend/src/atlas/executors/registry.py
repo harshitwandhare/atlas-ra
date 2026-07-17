@@ -97,7 +97,21 @@ async def _delete_path(path: str) -> str:
 
 def default_registry() -> ToolRegistry:
     reg = ToolRegistry()
-    reg.register(Tool("run_python", "Run Python code in a subprocess", 1, Risk.REVERSIBLE, _run_python))
-    reg.register(Tool("run_powershell", "Run a PowerShell command", 2, Risk.REVERSIBLE, _run_powershell))
-    reg.register(Tool("delete_path", "Delete a file or directory (requires approval)", 2, Risk.DESTRUCTIVE, _delete_path))
+    reg.register(
+        Tool("run_python", "Run Python code in a subprocess", 1, Risk.REVERSIBLE, _run_python)
+    )
+    reg.register(
+        Tool(
+            "run_powershell", "Run a PowerShell command", 2, Risk.REVERSIBLE, _run_powershell
+        )
+    )
+    reg.register(
+        Tool(
+            "delete_path",
+            "Delete a file or directory (requires approval)",
+            2,
+            Risk.DESTRUCTIVE,
+            _delete_path,
+        )
+    )
     return reg

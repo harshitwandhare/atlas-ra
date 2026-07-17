@@ -11,8 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from atlas.config import settings
-from atlas.executors.approvals import ApprovalQueue
 from atlas.events import AgentEvent
+from atlas.executors.approvals import ApprovalQueue
 from atlas.memory import Ledger, SkillStore
 from atlas.orchestrator import Orchestrator
 
