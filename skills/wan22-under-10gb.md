@@ -1,6 +1,6 @@
 ---
 name: wan22-under-10gb
-version: 1.0.0
+version: 1.1.0
 triggers: wan 2.2, wan2.2, video generation, i2v
 ---
 # Wan 2.2 video generation under a 10GB VRAM budget
@@ -20,3 +20,8 @@ triggers: wan 2.2, wan2.2, video generation, i2v
 
 ## Verify
 Generate a 33-frame 480p i2v clip from a test image; confirm no OOM and note s/it.
+
+## Ready-made workflow
+
+Load `workflows/comfyui/wan22_ti2v_5b_10gb.json` (5B TI2V, official node set). Model
+download table and 10GB OOM fallbacks in `workflows/comfyui/README.md`.

@@ -1,6 +1,6 @@
 ---
 name: comfyui-lora-training
-version: 1.0.0
+version: 1.1.0
 triggers: lora, comfyui, lora training
 ---
 # ComfyUI — LoRA training workflow (10GB VRAM budget)
@@ -27,3 +27,9 @@ triggers: lora, comfyui, lora training
 ## Verify
 Generate a 4-image grid with/without the LoRA at weight 0.8; confirm subject fidelity
 and no style bleed. Save grid to the task artifacts.
+
+## Ready-made workflow
+
+Load `workflows/comfyui/lora_train_sd15_native.json` (native TrainLoraNode, no custom
+nodes). Dataset goes in `ComfyUI/input/atlas_lora_dataset/`; requirements and widget
+reference in `workflows/comfyui/README.md`.

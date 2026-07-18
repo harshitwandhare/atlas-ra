@@ -36,9 +36,20 @@ class ClaudeProvider:
         options = ClaudeAgentOptions(system_prompt=system_prompt)
         prompt = f"{context}\n\n# Goal\n{goal}" if context else goal
 
-        async for message in query(prompt=prompt, options=options):
-            for event in _normalize(task_id, message):
-                yield event
+        try:
+            async for message in query(prompt=prompt, options=options):
+                for event in _normalize(task_id, message):
+                    yield event
+        except Exception as exc:
+            # The SDK stream can raise mid-flight (CLI process errors, transport drops).
+            # Per ADR-0001 a provider must terminate with a normalized event, never raise.
+            yield AgentEvent(
+                type=EventType.ERROR,
+                task_id=task_id,
+                agent="claude",
+                payload={"error": str(exc)},
+            )
+            return
         yield AgentEvent(type=EventType.DONE, task_id=task_id)
 
 

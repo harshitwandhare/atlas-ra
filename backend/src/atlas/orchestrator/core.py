@@ -42,8 +42,25 @@ class Orchestrator:
         """Create and run a task, routed to the best-matching team."""
         team_name = self._route(goal)
         task = self._ledger.create_task(goal=goal, team=team_name)
-        asyncio.get_event_loop().create_task(self._run(task.id, goal, team_name))
+        asyncio.create_task(self._supervised_run(task.id, goal, team_name))
         return task.id
+
+    async def _supervised_run(self, task_id: str, goal: str, team_name: str) -> None:
+        """Containment boundary: a crash anywhere below must never orphan the task
+        in RUNNING or escape the asyncio task as an unretrieved exception."""
+        try:
+            await self._run(task_id, goal, team_name)
+        except Exception as exc:
+            await self._sink(
+                AgentEvent(
+                    type=EventType.ERROR,
+                    task_id=task_id,
+                    payload={"error": f"{type(exc).__name__}: {exc}"},
+                )
+            )
+            await self._transition(
+                task_id, TaskState.ESCALATED, result=f"Unhandled error: {exc}"
+            )
 
     @staticmethod
     def _route(goal: str) -> str:

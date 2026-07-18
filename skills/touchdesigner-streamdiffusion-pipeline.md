@@ -1,6 +1,6 @@
 ---
 name: touchdesigner-streamdiffusion-pipeline
-version: 1.0.0
+version: 1.1.0
 triggers: touchdesigner, touch designer, td, streamdiffusiontd
 ---
 # TouchDesigner ↔ StreamDiffusion real-time pipeline
@@ -26,3 +26,9 @@ TD compositing + SD inference share the 10GB card. Keep TD render resolution mod
 
 ## Verify
 Webcam TOP → StreamDiffusionTD → out. Success = live stylized output ≥ 8fps at 512x512.
+
+## Ready-made runbook
+
+`workflows/touchdesigner/streamdiffusion_td_setup.md` is the operational runbook for
+the local install; `scripts/launch_streamdiffusion_demo.ps1` starts the backend
+(td | web | screen modes).

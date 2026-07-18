@@ -10,6 +10,24 @@
 ![Next.js](https://img.shields.io/badge/next.js-14-black)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+## Live on a real workstation
+
+Real screenshots — an ATLAS instance on a Windows box running fully local
+(`ATLAS_PROVIDER=ollama`, `llama3.2:3b`, zero cloud calls): goals routed to the
+research team, skills injected from procedural memory, critic-reviewed, ledgered.
+
+| Ledger — completed runs | Live activity — critic retry loop |
+|---|---|
+| ![Task ledger](docs/screenshots/ledger.png) | ![Live activity](docs/screenshots/activity.png) |
+
+| Procedural memory | Goal submission |
+|---|---|
+| ![Skills](docs/screenshots/skills.png) | ![Chat](docs/screenshots/chat.png) |
+
+The activity capture shows a genuine self-correction: first attempt → `review` →
+Critic rejects → second `running` pass whose output cites the injected
+`wan22-under-10gb v1.1.0` skill → `done`.
+
 ## Why ATLAS exists
 
 Frontier agents are powerful but stateless and unaccountable. ATLAS wraps a model-agnostic
@@ -86,6 +104,21 @@ flowchart LR
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full task lifecycle, memory
 read/write paths, and execution-tier policy, and [docs/DATA_MODELS.md](docs/DATA_MODELS.md)
 for every data model in the system. Design rationale lives in [docs/adr/](docs/adr/).
+Operating manual: [docs/OPERATIONS.md](docs/OPERATIONS.md). Version pins:
+[docs/VERSIONS.md](docs/VERSIONS.md). Honest brief-vs-built mapping:
+[docs/REQUIREMENTS_AUDIT.md](docs/REQUIREMENTS_AUDIT.md).
+
+## RA workloads
+
+The lab work this system assists with ships in-repo, ready to load:
+
+- [`workflows/comfyui/`](workflows/comfyui/) — Wan 2.2 5B image-to-video within a
+  10 GB VRAM budget, and LoRA training on ComfyUI's native `TrainLoraNode` (no custom
+  nodes) — model tables and OOM fallbacks in the local README.
+- [`workflows/touchdesigner/`](workflows/touchdesigner/) — operating TouchDesigner
+  against the local StreamDiffusion install (OSC-controlled PNG/NDI bridges, benchmarked).
+- [`scripts/launch_streamdiffusion_demo.ps1`](scripts/launch_streamdiffusion_demo.ps1)
+  — one-command launcher for the StreamDiffusion backend (td | web | screen modes).
 
 ## Module map
 
@@ -113,7 +146,7 @@ Verified against source — nothing here is aspirational.
 | `atlas.ingest.procedures` | `extract_procedure(text)` — regex-based imperative-sentence extractor that turns a transcript into a draft skill playbook (never auto-promoted). |
 | `atlas.observability.tracing` | `traced_event()` context manager — wraps each event in an OpenTelemetry span, no-ops if the SDK isn't configured. |
 | `atlas.api.main` | FastAPI app: `POST /goals`, `GET/POST /tasks`, `GET /skills`, `GET/POST /approvals`, `POST /ingest`, `WS /ws`. `Bus` fans out `AgentEvent`s to connected dashboard clients. |
-| `atlas.cli` | Typer CLI: `atlas serve` (runs the FastAPI app via uvicorn), `atlas version`. |
+| `atlas.cli` | Typer CLI: `atlas serve`, `atlas goal "…"` (submit to a running server), `atlas tasks` (ledger table), `atlas version`. |
 | `frontend/app/page.tsx` | Chat view — submits a goal via `POST /goals`, filters the live WebSocket event stream to that task. |
 | `frontend/app/activity/page.tsx` | Raw live event feed (all tasks) from `useEvents()`. |
 | `frontend/app/ledger/page.tsx` | Polls `GET /tasks` every 3s, renders the task table with state coloring. |
@@ -128,8 +161,11 @@ Verified against source — nothing here is aspirational.
 # Backend — Python 3.10+, uv (or plain venv + pip)
 cd backend
 uv sync --all-extras                 # or: python -m venv .venv && pip install -e ".[dev]"
-cp .env.example .env                 # set ANTHROPIC_API_KEY / ATLAS_PROVIDER etc.
+cp .env.example .env                 # pick a provider: claude (needs Claude Code signed in)
+                                     # or ollama (fully local: ATLAS_PROVIDER=ollama)
 uv run atlas serve                   # FastAPI + orchestrator on :8000
+uv run atlas goal "Summarize how to fit Wan 2.2 in a 10GB VRAM budget"
+uv run atlas tasks                   # watch it move: running -> review -> done
 
 # Frontend — Node 20
 cd ../frontend

@@ -1,0 +1,126 @@
+{
+  "last_node_id": 8,
+  "last_link_id": 9,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "CheckpointLoaderSimple",
+      "pos": [40, 120],
+      "size": [340, 98],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {"name": "MODEL", "type": "MODEL", "links": [1], "slot_index": 0},
+        {"name": "CLIP", "type": "CLIP", "links": [2], "slot_index": 1},
+        {"name": "VAE", "type": "VAE", "links": [3], "slot_index": 2}
+      ],
+      "properties": {"Node name for S&R": "CheckpointLoaderSimple"},
+      "widgets_values": ["v1-5-pruned-emaonly-fp16.safetensors"]
+    },
+    {
+      "id": 2,
+      "type": "LoadImageSetFromFolderNode",
+      "pos": [40, 280],
+      "size": [340, 82],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [{"name": "IMAGE", "type": "IMAGE", "links": [4], "slot_index": 0}],
+      "properties": {"Node name for S&R": "LoadImageSetFromFolderNode"},
+      "widgets_values": ["atlas_lora_dataset", "None"]
+    },
+    {
+      "id": 3,
+      "type": "CLIPTextEncode",
+      "pos": [420, 120],
+      "size": [400, 140],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [{"name": "clip", "type": "CLIP", "link": 2}],
+      "outputs": [{"name": "CONDITIONING", "type": "CONDITIONING", "links": [5], "slot_index": 0}],
+      "properties": {"Node name for S&R": "CLIPTextEncode"},
+      "widgets_values": ["photo of atlas_subject person"]
+    },
+    {
+      "id": 4,
+      "type": "VAEEncode",
+      "pos": [420, 320],
+      "size": [200, 46],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {"name": "pixels", "type": "IMAGE", "link": 4},
+        {"name": "vae", "type": "VAE", "link": 3}
+      ],
+      "outputs": [{"name": "LATENT", "type": "LATENT", "links": [6], "slot_index": 0}],
+      "properties": {"Node name for S&R": "VAEEncode"},
+      "widgets_values": []
+    },
+    {
+      "id": 5,
+      "type": "TrainLoraNode",
+      "pos": [680, 120],
+      "size": [360, 420],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {"name": "model", "type": "MODEL", "link": 1},
+        {"name": "latents", "type": "LATENT", "link": 6},
+        {"name": "positive", "type": "CONDITIONING", "link": 5}
+      ],
+      "outputs": [
+        {"name": "lora", "type": "LORA_MODEL", "links": [7], "slot_index": 0},
+        {"name": "loss_map", "type": "LOSS_MAP", "links": [8], "slot_index": 1},
+        {"name": "steps", "type": "INT", "links": null, "slot_index": 2}
+      ],
+      "properties": {"Node name for S&R": "TrainLoraNode"},
+      "widgets_values": [1, 4, 800, 0.0005, 16, "AdamW", "MSE", 0, "fixed", "bf16", "bf16", false, "default", true, 3, false, "[None]", false, false]
+    },
+    {
+      "id": 6,
+      "type": "SaveLoRANode",
+      "pos": [1080, 120],
+      "size": [320, 82],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [{"name": "lora", "type": "LORA_MODEL", "link": 7}],
+      "outputs": [],
+      "properties": {"Node name for S&R": "SaveLoRANode"},
+      "widgets_values": ["loras/atlas_subject_sd15"]
+    },
+    {
+      "id": 7,
+      "type": "LossGraphNode",
+      "pos": [1080, 260],
+      "size": [320, 300],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [{"name": "loss", "type": "LOSS_MAP", "link": 8}],
+      "outputs": [],
+      "properties": {"Node name for S&R": "LossGraphNode"},
+      "widgets_values": ["loss_graph"]
+    }
+  ],
+  "links": [
+    [1, 1, 0, 5, 0, "MODEL"],
+    [2, 1, 1, 3, 0, "CLIP"],
+    [3, 1, 2, 4, 1, "VAE"],
+    [4, 2, 0, 4, 0, "IMAGE"],
+    [5, 3, 0, 5, 2, "CONDITIONING"],
+    [6, 4, 0, 5, 1, "LATENT"],
+    [7, 5, 0, 6, 0, "LORA_MODEL"],
+    [8, 5, 1, 7, 0, "LOSS_MAP"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {"note": "ATLAS — SD1.5 LoRA training with ComfyUI native TrainLoraNode. See README.md in this directory."},
+  "version": 0.4
+}

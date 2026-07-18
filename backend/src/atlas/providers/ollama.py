@@ -6,6 +6,7 @@ suitable for drafting, summarization, and Critic duty on local models.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import urllib.request
 from collections.abc import AsyncIterator
@@ -17,9 +18,11 @@ from atlas.events import AgentEvent, EventType
 class OllamaProvider:
     name = "ollama"
 
-    def __init__(self, model: str = "llama3.1", base_url: str = "http://localhost:11434") -> None:
-        self._model = model
-        self._base = base_url
+    def __init__(self, model: str | None = None, base_url: str | None = None) -> None:
+        from atlas.config import settings
+
+        self._model = model if model is not None else settings.ollama_model
+        self._base = base_url if base_url is not None else settings.ollama_base_url
 
     async def run(
         self,
@@ -42,9 +45,14 @@ class OllamaProvider:
             f"{self._base}/api/generate", data=body,
             headers={"Content-Type": "application/json"},
         )
-        try:
+        def _blocking_call() -> str:
             with urllib.request.urlopen(req, timeout=600) as resp:
-                text = json.loads(resp.read())["response"]
+                return str(json.loads(resp.read())["response"])
+
+        try:
+            # Generation takes seconds-to-minutes; a blocking urlopen here would
+            # freeze the whole event loop (API + dashboard) for that long.
+            text = await asyncio.to_thread(_blocking_call)
             yield AgentEvent(
                 type=EventType.MESSAGE_DELTA, task_id=task_id,
                 agent="ollama", payload={"text": text},

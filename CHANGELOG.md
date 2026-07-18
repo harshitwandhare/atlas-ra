@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.3.0 — 2026-07-18
+### Fixed
+- Claude provider: SDK stream failures now yield a normalized ERROR event instead of
+  raising out of the async generator (observed live: "Claude Code returned an error
+  result" with SDK 0.2.121 / CLI 2.1.58)
+- Orchestrator: task runs are supervised — any provider crash transitions the task to
+  ESCALATED and emits ERROR through the event bus; previously the asyncio task died
+  silently and the ledger row was stuck in RUNNING forever
+- Ollama provider: blocking urllib call moved off the event loop (asyncio.to_thread);
+  the API and dashboard no longer freeze for the duration of a local generation
+### Added
+- CLI: `atlas goal "…"` and `atlas tasks` (the docstring advertised goal; now it exists)
+- Config: `ATLAS_OLLAMA_MODEL` / `ATLAS_OLLAMA_BASE_URL`
+- Test suite 15 → 55: orchestrator lifecycle (success/retry/escalate/crash/skills),
+  providers (registry, Ollama paths, Claude SDK failure + normalization), API endpoints
+  incl. WebSocket, CLI (all commands, offline), memory tiers, and a full-stack e2e test
+- ComfyUI workflows: Wan 2.2 5B i2v within 10 GB VRAM; LoRA training on native
+  TrainLoraNode — with model/custom-node requirement docs
+- TouchDesigner runbook against the local StreamDiffusion install + PowerShell launcher
+- Docs: OPERATIONS.md, REQUIREMENTS_AUDIT.md (honest brief-vs-built), VERSIONS.md
+- README: real dashboard screenshots from a fully local run (Ollama llama3.2:3b)
+
 ## 0.2.0 — 2026-07-17
 ### Added
 - Tiered tool executors (run_python, run_powershell) with hard timeouts
