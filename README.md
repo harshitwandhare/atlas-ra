@@ -1,3 +1,10 @@
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
+    <img src="assets/logo-light.svg" width="88" height="88" alt="ATLAS logo">
+  </picture>
+</div>
+
 # ATLAS — Autonomous Task & Lab Assistant System
 
 > A multi-team, multi-provider agent system: an orchestrator decomposes goals, routes them
@@ -24,9 +31,9 @@ research team, skills injected from procedural memory, critic-reviewed, ledgered
 |---|---|
 | ![Skills](docs/screenshots/skills.png) | ![Chat](docs/screenshots/chat.png) |
 
-The activity capture shows a genuine self-correction: first attempt → `review` →
-Critic rejects → second `running` pass whose output cites the injected
-`wan22-under-10gb v1.1.0` skill → `done`.
+The activity capture shows one complete live lifecycle: `running` → the local
+model's `message_delta` (its answer opens with the injected TouchDesigner-pipeline
+skill content) → `review` → Critic approves → `done` with the result persisted.
 
 ## Why ATLAS exists
 
