@@ -1,6 +1,6 @@
 [project]
 name = "atlas-ra"
-version = "0.3.0"
+version = "0.3.1"
 description = "ATLAS — Autonomous Task & Lab Assistant System"
 authors = [{ name = "Harshit Wandhare", email = "harshitwandhare45@gmail.com" }]
 requires-python = ">=3.10"
