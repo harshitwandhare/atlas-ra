@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.1 — 2026-07-23
+### Fixed
+- Semantic memory: `SemanticStore.search` skips blank or half-written lines in
+  the append-only `docs.jsonl` instead of raising `JSONDecodeError`, so a write
+  interrupted by a crash can no longer take down retrieval. Matches how the
+  skill store already tolerates malformed files.
+### Added
+- Brand: geometric peak logo (light/dark) wired into the README and dashboard.
+- Docs: SECURITY.md policy and an expanded CONTRIBUTING guide for the public
+  open-source release.
+
 ## 0.3.0 — 2026-07-18
 ### Fixed
 - Claude provider: SDK stream failures now yield a normalized ERROR event instead of
