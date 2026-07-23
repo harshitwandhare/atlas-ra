@@ -59,6 +59,20 @@ def test_semantic_search_empty_store(tmp_path):
     assert SemanticStore(str(tmp_path / "sem")).search("anything") == []
 
 
+def test_semantic_search_survives_corrupt_lines(tmp_path):
+    path = str(tmp_path / "sem")
+    store = SemanticStore(path)
+    store.add(Doc(id="ok", text="cuda vram tuning guide", source="a"))
+
+    # Simulate an interrupted write: a blank line and a truncated json record.
+    with (tmp_path / "sem" / "docs.jsonl").open("a", encoding="utf-8") as f:
+        f.write("\n")
+        f.write('{"id": "half", "text": "cuda vram tun\n')
+
+    hits = SemanticStore(path).search("cuda vram")
+    assert [h.id for h in hits] == ["ok"]
+
+
 def test_skill_parse_full_frontmatter(tmp_path):
     (tmp_path / "s.md").write_text(
         "---\nname: my-skill\nversion: 2.1.0\ntriggers: lora, comfyui\n---\nBody here.",
