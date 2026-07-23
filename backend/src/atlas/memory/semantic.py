@@ -38,8 +38,15 @@ class SemanticStore:
         if not self._index.exists():
             return []
         for line in self._index.read_text(encoding="utf-8").splitlines():
-            raw = json.loads(line)
-            doc = Doc(**raw)
+            line = line.strip()
+            if not line:
+                continue
+            # An append-only log can end up with a half-written or blank line if a
+            # write was interrupted; skip those rather than failing every search.
+            try:
+                doc = Doc(**json.loads(line))
+            except (json.JSONDecodeError, TypeError):
+                continue
             words = set(re.findall(r"\w+", doc.text.lower()))
             overlap = len(terms & words) / (len(terms) or 1)
             if overlap > 0:
