@@ -33,5 +33,8 @@ export const submitGoal = (goal: string) =>
     body: JSON.stringify({ goal }),
   }).then((r) => r.json() as Promise<{ task_id: string }>);
 
-export const listTasks = () => fetch(`${API}/tasks`).then((r) => r.json() as Promise<Task[]>);
+export const listTasks = (state?: string) => {
+  const url = state ? `${API}/tasks?state=${encodeURIComponent(state)}` : `${API}/tasks`;
+  return fetch(url).then((r) => r.json() as Promise<Task[]>);
+};
 export const listSkills = () => fetch(`${API}/skills`).then((r) => r.json() as Promise<Skill[]>);

@@ -35,6 +35,26 @@ def test_submit_goal_and_lifecycle(make_app):
         assert any(t["id"] == task_id for t in listing)
 
 
+def test_list_tasks_filtered_by_state(make_app):
+    api_main, fake = make_app()
+    with TestClient(api_main.app) as client:
+        task_id = client.post("/goals", json={"goal": "Install StreamDiffusion"}).json()["task_id"]
+        wait_for_state(client, task_id, "done")
+
+        done = client.get("/tasks?state=done").json()
+        assert any(t["id"] == task_id for t in done)
+
+        pending = client.get("/tasks?state=pending").json()
+        assert not any(t["id"] == task_id for t in pending)
+
+
+def test_list_tasks_invalid_state(make_app):
+    api_main, _ = make_app()
+    with TestClient(api_main.app) as client:
+        resp = client.get("/tasks?state=bogus")
+        assert resp.json() == {"error": "invalid state: bogus"}
+
+
 def test_get_unknown_task(make_app):
     api_main, _ = make_app()
     with TestClient(api_main.app) as client:
