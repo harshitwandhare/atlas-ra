@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from atlas.config import settings
 from atlas.events import AgentEvent
 from atlas.executors.approvals import ApprovalQueue
-from atlas.memory import Ledger, SkillStore
+from atlas.memory import Ledger, SkillStore, TaskState
 from atlas.orchestrator import Orchestrator
 
 
@@ -71,8 +71,13 @@ async def submit_goal(body: GoalIn) -> dict[str, str]:
 
 
 @app.get("/tasks")
-async def list_tasks() -> list[dict[str, Any]]:
-    return [t.model_dump() for t in ledger.list_tasks()]
+async def list_tasks(state: str | None = None) -> list[dict[str, Any]] | dict[str, Any]:
+    if state is not None:
+        try:
+            TaskState(state)
+        except ValueError:
+            return {"error": f"invalid state: {state}"}
+    return [t.model_dump() for t in ledger.list_tasks(state=state)]
 
 
 @app.get("/tasks/{task_id}")

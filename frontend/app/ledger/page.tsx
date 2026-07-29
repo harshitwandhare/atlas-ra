@@ -9,18 +9,38 @@ const stateColor: Record<string, string> = {
   escalated: "text-amber-400",
 };
 
+const STATES = ["all", "pending", "assigned", "running", "review", "done", "failed", "blocked", "escalated"];
+
 export default function LedgerPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [filter, setFilter] = useState("all");
+
   useEffect(() => {
-    const load = () => listTasks().then(setTasks).catch(() => {});
+    const load = () =>
+      listTasks(filter === "all" ? undefined : filter)
+        .then(setTasks)
+        .catch(() => {});
     load();
     const t = setInterval(load, 3000);
     return () => clearInterval(t);
-  }, []);
+  }, [filter]);
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-semibold">Task ledger</h1>
+      <div className="mb-4 flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Task ledger</h1>
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-sm text-zinc-300"
+        >
+          {STATES.map((s) => (
+            <option key={s} value={s}>
+              {s === "all" ? "All states" : s}
+            </option>
+          ))}
+        </select>
+      </div>
       <table className="w-full text-left text-sm">
         <thead className="text-zinc-500">
           <tr><th className="py-2">ID</th><th>Goal</th><th>Team</th><th>State</th><th>Updated</th></tr>

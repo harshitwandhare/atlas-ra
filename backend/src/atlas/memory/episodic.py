@@ -91,10 +91,16 @@ class Ledger:
         row = self._conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
         return _to_task(row) if row else None
 
-    def list_tasks(self, limit: int = 100) -> list[Task]:
-        rows = self._conn.execute(
-            "SELECT * FROM tasks ORDER BY created_at DESC LIMIT ?", (limit,)
-        ).fetchall()
+    def list_tasks(self, limit: int = 100, state: TaskState | str | None = None) -> list[Task]:
+        if state is not None:
+            rows = self._conn.execute(
+                "SELECT * FROM tasks WHERE state=? ORDER BY created_at DESC LIMIT ?",
+                (TaskState(state), limit),
+            ).fetchall()
+        else:
+            rows = self._conn.execute(
+                "SELECT * FROM tasks ORDER BY created_at DESC LIMIT ?", (limit,)
+            ).fetchall()
         return [_to_task(r) for r in rows]
 
 
