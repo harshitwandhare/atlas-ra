@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2 — 2026-07-30
+### Added
+- Ledger: `GET /tasks` accepts a `state` query param so the dashboard can filter
+  the task table by status instead of always showing everything.
+
 ## 0.3.1 — 2026-07-23
 ### Fixed
 - Semantic memory: `SemanticStore.search` skips blank or half-written lines in
