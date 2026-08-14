@@ -52,7 +52,8 @@ def test_list_tasks_invalid_state(make_app):
     api_main, _ = make_app()
     with TestClient(api_main.app) as client:
         resp = client.get("/tasks?state=bogus")
-        assert resp.json() == {"error": "invalid state: bogus"}
+        assert resp.status_code == 400
+        assert resp.json() == {"detail": "invalid state: bogus"}
 
 
 def test_get_unknown_task(make_app):

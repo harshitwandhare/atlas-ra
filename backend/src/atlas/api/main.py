@@ -6,7 +6,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -71,12 +71,12 @@ async def submit_goal(body: GoalIn) -> dict[str, str]:
 
 
 @app.get("/tasks")
-async def list_tasks(state: str | None = None) -> list[dict[str, Any]] | dict[str, Any]:
+async def list_tasks(state: str | None = None) -> list[dict[str, Any]]:
     if state is not None:
         try:
             TaskState(state)
-        except ValueError:
-            return {"error": f"invalid state: {state}"}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=f"invalid state: {state}") from exc
     return [t.model_dump() for t in ledger.list_tasks(state=state)]
 
 
