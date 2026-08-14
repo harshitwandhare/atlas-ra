@@ -2,31 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Palette: cool blue-black with an indigo signal colour. Emerald is reserved
+   for one job — the semantic "verified / done" state — so the brand colour and
+   the success colour never mean the same thing. */
 :root {
-  --bg: #08090b;
-  --surface: #0d0f12;
-  --raised: #14171c;
-  --ink: #f4f4f5;
-  --muted: #a1a1aa;
-  --faint: #71717a;
-  --line: #23262d;
-  --brand: #10b981;
+  --bg: #08090f;
+  --surface: #0e0f18;
+  --raised: #161826;
+  --ink: #eceaf5;
+  --muted: #a2a0b4;
+  --faint: #6e6c85;
+  --line: #23253a;
+  --brand: #7c6cff;
+  --ok: #10b981;
 }
 
 body {
   @apply bg-bg text-ink antialiased;
 }
 
-/* Faint technical grid — used behind hero and section breaks. */
-.bg-grid {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 56px 56px;
+h1,
+h2,
+h3 {
+  @apply font-display tracking-tight;
 }
 
-.bg-grid-fade {
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+/* Dot matrix rather than a ruled grid — reads as a sensor field, and keeps this
+   visually distinct from the ruled-grid look used elsewhere. */
+.bg-dots {
+  background-image: radial-gradient(rgba(160, 155, 255, 0.11) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+.bg-dots-fade {
+  mask-image: radial-gradient(ellipse 78% 62% at 50% 0%, #000 38%, transparent 100%);
+}
+
+/* Soft indigo wash behind the hero. */
+.bg-aurora::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 60%;
+  background:
+    radial-gradient(40% 60% at 22% 20%, rgba(124, 108, 255, 0.18), transparent 70%),
+    radial-gradient(38% 55% at 78% 8%, rgba(56, 189, 248, 0.1), transparent 72%);
+  filter: blur(20px);
+  pointer-events: none;
 }
 
 /* Reveal-on-scroll: hidden until the observer adds .is-in. */

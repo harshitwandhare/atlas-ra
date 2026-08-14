@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { listTasks, Task } from "@/lib/api";
 
 const stateColor: Record<string, string> = {
-  done: "text-brand-400",
+  done: "text-ok-400",
   running: "text-sky-400",
   failed: "text-red-400",
   escalated: "text-amber-400",

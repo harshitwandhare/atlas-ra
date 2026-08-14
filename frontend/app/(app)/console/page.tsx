@@ -41,7 +41,7 @@ export default function ConsolePage() {
         />
         <button
           onClick={() => send()}
-          className="rounded-lg bg-brand-500 px-5 font-medium text-black transition-colors hover:bg-brand-400"
+          className="rounded-lg bg-brand-600 px-5 font-medium text-white transition-colors hover:bg-brand-500"
         >
           Run
         </button>

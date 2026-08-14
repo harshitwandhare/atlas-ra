@@ -8,7 +8,7 @@ export function Logo({ size = 22 }: { size?: number }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="32" cy="41" r="5.5" fill="#10b981" />
+      <circle cx="32" cy="41" r="5.5" fill="#7c6cff" />
     </svg>
   );
 }
