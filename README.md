@@ -27,8 +27,12 @@ system end to end, and the dashboard is browsable at
 
 ATLAS runs on your own machine, so the deployment has no backend attached. The dashboard
 detects that and serves illustrative sample data behind a notice saying so — nothing there
-is a live run. Point it at a local `atlas serve` and it switches to your real data with no
-configuration change.
+is a live run.
+
+The hosted page cannot reach a backend on your machine either: browsers block an `https`
+origin from calling `http://localhost`, and the API only allows `http://localhost:3000` as
+a CORS origin. Run the dashboard locally (`npm run dev`) alongside `atlas serve` and it
+picks up your real data with no configuration change.
 
 <details>
 <summary><b>More of the site</b> — task lifecycle, architecture, and the dashboard in preview mode</summary>
