@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { DemoBanner } from "@/components/DemoBanner";
 import { Logo } from "@/components/Logo";
 
 const nav = [
@@ -36,7 +37,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           ← Back to overview
         </Link>
       </aside>
-      <main className="flex-1 p-6">{children}</main>
+      <main className="flex-1 p-6">
+        <DemoBanner />
+        {children}
+      </main>
     </div>
   );
 }

@@ -1,19 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { API } from "@/lib/api";
-
-interface Approval {
-  id: string;
-  tool_name: string;
-  args: Record<string, unknown>;
-  state: string;
-  created_at: string;
-}
+import { decideApproval, listApprovals } from "@/lib/api";
+import type { Approval } from "@/lib/api";
 
 export default function ApprovalsPage() {
   const [items, setItems] = useState<Approval[]>([]);
-  const load = () =>
-    fetch(`${API}/approvals`).then((r) => r.json()).then(setItems).catch(() => {});
+  const load = () => listApprovals().then(setItems).catch(() => {});
 
   useEffect(() => {
     load();
@@ -22,11 +14,7 @@ export default function ApprovalsPage() {
   }, []);
 
   const decide = async (id: string, approved: boolean) => {
-    await fetch(`${API}/approvals/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ approved }),
-    });
+    await decideApproval(id, approved);
     load();
   };
 
