@@ -1,8 +1,12 @@
-"""Capture the README screenshots.
+"""Capture the README screenshots of the hosted preview.
 
 Runs against a URL (the deployment by default, or a local dev server) and writes
-PNGs into docs/screenshots/. Committing this next to the images keeps them
-reproducible instead of one-off artifacts that drift as the UI changes.
+PNGs into docs/screenshots/preview/. Committing this next to the images keeps
+them reproducible instead of one-off artifacts that drift as the UI changes.
+
+Output goes to preview/ deliberately: docs/screenshots/ holds captures of real
+local runs against Ollama, which this cannot reproduce — the deployment has no
+backend and renders sample data. Writing there would destroy them.
 
     uv run python scripts/capture_screens.py
     uv run python scripts/capture_screens.py --base-url http://localhost:3000
@@ -20,7 +24,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 DEFAULT_BASE_URL = "https://atlas-ra.vercel.app"
-OUT_DIR = Path(__file__).resolve().parent.parent / "docs" / "screenshots"
+OUT_DIR = Path(__file__).resolve().parent.parent / "docs" / "screenshots" / "preview"
 
 # Viewport is 2x-scaled at capture time, so these are CSS pixels. Dashboard
 # screens are shorter than the landing hero because they carry less content —
