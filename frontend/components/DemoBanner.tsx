@@ -32,11 +32,12 @@ export function DemoBanner() {
           <p className="mt-1 text-sm leading-relaxed text-muted">
             ATLAS runs on your own machine, so this deployment has no backend to talk to. The tasks,
             skills, and approvals below are realistic examples, not live runs, and controls here
-            will not change anything. Run{" "}
+            will not change anything. This page cannot reach a backend on your machine either —
+            browsers block an https site from calling{" "}
             <code className="rounded bg-raised px-1.5 py-0.5 font-mono text-xs text-brand-300">
-              atlas serve
-            </code>{" "}
-            locally and this screen switches to your real data automatically.
+              localhost
+            </code>
+            . To see your own runs, clone the repo and open the dashboard locally.
           </p>
           <a
             href={`${REPO}#quickstart`}
