@@ -83,7 +83,9 @@ async def list_tasks(state: str | None = None) -> list[dict[str, Any]]:
 @app.get("/tasks/{task_id}")
 async def get_task(task_id: str) -> dict[str, Any]:
     task = ledger.get_task(task_id)
-    return task.model_dump() if task else {"error": "not found"}
+    if task is None:
+        raise HTTPException(status_code=404, detail=f"unknown task: {task_id}")
+    return task.model_dump()
 
 
 @app.get("/skills")
@@ -102,7 +104,10 @@ class ApprovalDecision(BaseModel):
 
 @app.post("/approvals/{request_id}")
 async def decide_approval(request_id: str, body: ApprovalDecision) -> dict[str, Any]:
-    return approvals.resolve(request_id, body.approved).model_dump()
+    try:
+        return approvals.resolve(request_id, body.approved).model_dump()
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=f"unknown approval: {request_id}") from exc
 
 
 class IngestIn(BaseModel):
