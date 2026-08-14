@@ -17,6 +17,17 @@
 ![Next.js](https://img.shields.io/badge/next.js-14-black)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+## Try it
+
+**[atlas-ra.vercel.app](https://atlas-ra.vercel.app)** — the landing page explains the
+system end to end, and the dashboard is browsable at
+[`/console`](https://atlas-ra.vercel.app/console).
+
+ATLAS runs on your own machine, so the deployment has no backend attached. The dashboard
+detects that and serves illustrative sample data behind a notice saying so — nothing there
+is a live run. Point it at a local `atlas serve` and it switches to your real data with no
+configuration change.
+
 ## Live on a real workstation
 
 Real screenshots — an ATLAS instance on a Windows box running fully local
@@ -156,12 +167,14 @@ Verified against source — nothing here is aspirational.
 | `atlas.api.main` | FastAPI app: `POST /goals`, `GET/POST /tasks`, `GET /skills`, `GET/POST /approvals`, `POST /ingest`, `WS /ws`. `Bus` fans out `AgentEvent`s to connected dashboard clients. |
 | `atlas.cli` | Typer CLI: `atlas serve`, `atlas goal "…"` (submit to a running server), `atlas tasks` (ledger table), `atlas version`. |
 | `frontend/app/(site)/page.tsx` | Public landing page — what ATLAS is, the task lifecycle, the layer diagram, and the engineering behind it. Static, no API dependency. |
+| `frontend/lib/demo.ts` | Sample tasks/skills/approvals/events served when no backend is reachable, so the hosted preview is not a set of empty screens. Timestamps derive from a fixed base so SSR and client markup match. |
+| `frontend/components/DemoBanner.tsx` | Preview notice — renders only in the fallback state, states that the data is illustrative and that controls are inert. |
 | `frontend/app/(app)/console/page.tsx` | Goal submission — `POST /goals`, then filters the live WebSocket event stream to that task. |
 | `frontend/app/(app)/activity/page.tsx` | Raw live event feed (all tasks) from `useEvents()`. |
 | `frontend/app/(app)/ledger/page.tsx` | Polls `GET /tasks` every 3s, renders the task table with state coloring. |
 | `frontend/app/(app)/skills/page.tsx` | Renders `GET /skills` as playbook cards. |
 | `frontend/app/(app)/approvals/page.tsx` | Polls `GET /approvals` every 2.5s; Approve/Deny buttons call `POST /approvals/{id}`. |
-| `frontend/lib/api.ts` | Typed fetch wrappers + shared `Task` / `AgentEvent` / `Skill` interfaces. |
+| `frontend/lib/api.ts` | Typed fetch wrappers + shared `Task` / `AgentEvent` / `Skill` / `Approval` interfaces. `withFallback()` serves sample data when the API is unreachable and publishes that state to subscribers. |
 | `frontend/lib/useEvents.ts` | WebSocket hook with exponential-backoff reconnect, keeps the last N events. |
 
 ## Quickstart

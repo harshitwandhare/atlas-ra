@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.4.0 — 2026-08-14
+### Added
+- Landing page at `/` — what ATLAS is, why it exists, the five-checkpoint task
+  lifecycle, a layer diagram of the architecture, capabilities, and the
+  engineering gates. Previously the root route was the goal-submission view, so
+  anyone opening the deployed site landed on an unexplained text input.
+- Hosted-preview mode: when the dashboard cannot reach a backend it serves
+  sample tasks, skills, approvals, and events, and shows a notice explaining
+  that the data is illustrative and that ATLAS runs locally. Detection is
+  per-request, so a local run with `atlas serve` up shows real data with no
+  configuration, and starting the server swaps the samples out without a
+  reload.
+### Changed
+- Goal submission moved from `/` to `/console`; dashboard screens now live in an
+  `(app)` route group behind the existing sidebar.
+- Dashboard styling moved onto CSS custom properties wired into Tailwind
+  (`bg`/`surface`/`raised`/`ink`/`muted`/`faint`/`line`/`brand`), replacing
+  ad-hoc `zinc-*` classes.
+### Fixed
+- API: `GET /tasks/{task_id}` returned HTTP 200 with an `{"error": "not found"}`
+  body for an unknown id, so callers had to inspect the payload to tell a miss
+  from a hit. Now returns 404.
+- API: `POST /approvals/{request_id}` indexed the request dict directly, so an
+  unknown id raised a bare `KeyError` that surfaced as an unhandled 500. Now
+  returns 404, with `ApprovalQueue.resolve()` raising an explicit `KeyError`.
+- Landing page: hero stats paired an `sr-only` `<dt>` with a visible `<dd>`
+  holding the same text, so screen readers announced every label twice.
+- `backend/uv.lock` still pinned `atlas-ra` at 0.3.1 after the v0.3.2 release.
+
 ## 0.3.2 — 2026-07-30
 ### Added
 - Ledger: `GET /tasks` accepts a `state` query param so the dashboard can filter
