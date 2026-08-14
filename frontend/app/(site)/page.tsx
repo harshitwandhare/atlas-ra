@@ -155,10 +155,10 @@ export default function LandingPage() {
 
             <dl className="mt-12 grid max-w-lg grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4">
               {heroStats.map((s) => (
-                <div key={s.label}>
-                  <dt className="sr-only">{s.label}</dt>
+                /* Reversed so the value reads on top while dt still precedes dd. */
+                <div key={s.label} className="flex flex-col-reverse">
+                  <dt className="mt-0.5 text-xs leading-snug text-faint">{s.label}</dt>
                   <dd className="text-2xl font-bold text-ink">{s.value}</dd>
-                  <dd className="mt-0.5 text-xs leading-snug text-faint">{s.label}</dd>
                 </div>
               ))}
             </dl>
