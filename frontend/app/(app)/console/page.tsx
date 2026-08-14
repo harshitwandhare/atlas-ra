@@ -64,7 +64,13 @@ export default function ConsolePage() {
       {taskId && (
         <div className="mt-6 space-y-2">
           <div className="font-mono text-xs text-faint">task {taskId}</div>
-          {mine.length === 0 && <p className="text-sm text-faint">Waiting for the first event…</p>}
+          {taskId === "t_preview" ? (
+            <p className="text-sm text-faint">
+              Nothing ran — this preview has no backend. The stream above is sample data.
+            </p>
+          ) : (
+            mine.length === 0 && <p className="text-sm text-faint">Waiting for the first event…</p>
+          )}
           {mine
             .slice()
             .reverse()
