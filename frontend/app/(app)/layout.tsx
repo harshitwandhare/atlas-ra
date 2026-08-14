@@ -38,8 +38,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </Link>
       </aside>
       <main className="flex-1 p-6">
-        <DemoBanner />
-        {children}
+        {/* One container for every screen so the banner and page content
+            share a left edge and nothing stretches edge to edge on wide
+            displays. */}
+        <div className="mx-auto w-full max-w-6xl">
+          <DemoBanner />
+          {children}
+        </div>
       </main>
     </div>
   );
