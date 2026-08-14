@@ -63,8 +63,12 @@ class Ledger:
     def create_task(self, goal: str, team: str) -> Task:
         now = datetime.now(timezone.utc).isoformat()
         task = Task(
-            id=uuid.uuid4().hex[:12], goal=goal, team=team,
-            state=TaskState.PENDING, created_at=now, updated_at=now,
+            id=uuid.uuid4().hex[:12],
+            goal=goal,
+            team=team,
+            state=TaskState.PENDING,
+            created_at=now,
+            updated_at=now,
         )
         self._conn.execute(
             "INSERT INTO tasks VALUES (?,?,?,?,?,?,?)",
@@ -106,6 +110,11 @@ class Ledger:
 
 def _to_task(row: tuple[Any, ...]) -> Task:
     return Task(
-        id=row[0], goal=row[1], team=row[2], state=TaskState(row[3]),
-        result=row[4], created_at=row[5], updated_at=row[6],
+        id=row[0],
+        goal=row[1],
+        team=row[2],
+        state=TaskState(row[3]),
+        result=row[4],
+        created_at=row[5],
+        updated_at=row[6],
     )

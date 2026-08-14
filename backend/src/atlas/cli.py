@@ -17,9 +17,7 @@ DEFAULT_API = "http://localhost:8000"
 
 def _request(url: str, data: dict[str, Any] | None = None) -> Any:
     body = json.dumps(data).encode() if data is not None else None
-    req = urllib.request.Request(
-        url, data=body, headers={"Content-Type": "application/json"}
-    )
+    req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             return json.loads(resp.read())

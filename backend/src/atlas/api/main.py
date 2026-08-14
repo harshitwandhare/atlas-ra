@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import asynccontextmanager
+from importlib.metadata import version
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
@@ -53,10 +54,12 @@ async def lifespan(app: FastAPI):  # type: ignore[no-untyped-def]
     yield
 
 
-app = FastAPI(title="ATLAS", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="ATLAS", version=version("atlas-ra"), lifespan=lifespan)
 app.add_middleware(
-    CORSMiddleware, allow_origins=["http://localhost:3000"],
-    allow_methods=["*"], allow_headers=["*"],
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

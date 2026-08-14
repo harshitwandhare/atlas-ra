@@ -74,9 +74,7 @@ def test_skills_endpoint_lists_seeded_skill(make_app):
 
 def test_approvals_roundtrip(make_app):
     api_main, _ = make_app()
-    request_id = asyncio.run(
-        api_main.approvals.request("delete_path", {"path": "C:/tmp/x"})
-    )
+    request_id = asyncio.run(api_main.approvals.request("delete_path", {"path": "C:/tmp/x"}))
     with TestClient(api_main.app) as client:
         pending = client.get("/approvals").json()
         assert pending[0]["id"] == request_id

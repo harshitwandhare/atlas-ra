@@ -80,9 +80,7 @@ def test_tasks_table(monkeypatch):
         {"id": "aaa", "state": "done", "team": "systems", "goal": "short goal"},
         {"id": "bbb", "state": "running", "team": "research", "goal": "g" * 80},
     ]
-    monkeypatch.setattr(
-        "urllib.request.urlopen", lambda req, timeout=0: FakeResponse(rows)
-    )
+    monkeypatch.setattr("urllib.request.urlopen", lambda req, timeout=0: FakeResponse(rows))
     result = runner.invoke(app, ["tasks"])
 
     assert result.exit_code == 0
@@ -91,9 +89,7 @@ def test_tasks_table(monkeypatch):
 
 
 def test_tasks_empty(monkeypatch):
-    monkeypatch.setattr(
-        "urllib.request.urlopen", lambda req, timeout=0: FakeResponse([])
-    )
+    monkeypatch.setattr("urllib.request.urlopen", lambda req, timeout=0: FakeResponse([]))
     result = runner.invoke(app, ["tasks"])
     assert result.exit_code == 0
     assert "no tasks" in result.output

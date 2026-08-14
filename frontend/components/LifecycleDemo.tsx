@@ -2,22 +2,22 @@
 
 import { useEffect, useState } from "react";
 
-type Step = { type: string; agent: string; text: string; tone?: "brand" | "sky" | "amber" };
+type Step = { type: string; agent: string; text: string; tone?: "ok" | "sky" | "amber" };
 
 // Mirrors a real captured run: goal -> route -> skill injection -> model output
 // -> critic review -> done. Same event names the WebSocket bus emits.
 const STEPS: Step[] = [
   { type: "task_created", agent: "orchestrator", text: "Fit Wan 2.2 5B into a 10GB VRAM budget", tone: "sky" },
   { type: "routed", agent: "orchestrator", text: "team=research (keyword match)", tone: "sky" },
-  { type: "skill_matched", agent: "memory", text: "touchdesigner-pipeline v1.2.0 injected", tone: "brand" },
+  { type: "skill_matched", agent: "memory", text: "touchdesigner-pipeline v1.2.0 injected", tone: "ok" },
   { type: "message_delta", agent: "research", text: "Load the 5B checkpoint in fp8, offload the text encoder..." },
   { type: "state_change", agent: "orchestrator", text: "running → review", tone: "amber" },
-  { type: "critic_review", agent: "critic", text: "approve — transcript grounded, no errors", tone: "brand" },
-  { type: "state_change", agent: "orchestrator", text: "review → done", tone: "brand" },
+  { type: "critic_review", agent: "critic", text: "approve — transcript grounded, no errors", tone: "ok" },
+  { type: "state_change", agent: "orchestrator", text: "review → done", tone: "ok" },
 ];
 
 const toneClass: Record<string, string> = {
-  brand: "bg-brand-500/15 text-brand-300",
+  ok: "bg-ok-500/15 text-ok-300",
   sky: "bg-sky-500/15 text-sky-300",
   amber: "bg-amber-500/15 text-amber-300",
 };
@@ -49,12 +49,17 @@ export function LifecycleDemo() {
         <span className="ml-auto font-mono text-[10px] uppercase tracking-widest text-faint">live</span>
       </div>
 
-      <ul className="min-h-[332px] space-y-2 p-4">
-        {STEPS.slice(0, count).map((s, i) => (
+      {/* Every step stays mounted and fades in, so the card reserves its full
+          height from first paint. Slicing the list instead made the container
+          grow with each step and shoved the rest of the hero down the page. */}
+      <ul className="space-y-2 p-4">
+        {STEPS.map((s, i) => (
           <li
             key={i}
-            className="reveal is-in rounded-lg border border-line bg-bg px-3 py-2.5"
-            style={{ transitionDelay: "0s" }}
+            aria-hidden={i >= count}
+            className={`rounded-lg border border-line bg-bg px-3 py-2.5 transition-all duration-500 ease-out ${
+              i < count ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
+            }`}
           >
             <div className="flex items-center gap-2">
               <span

@@ -14,19 +14,27 @@ const config: Config = {
         line: "var(--line)",
         brand: {
           DEFAULT: "var(--brand)",
+          300: "#b3a9ff",
+          400: "#9587ff",
+          500: "#7c6cff",
+          600: "#6350e6",
+        },
+        // Semantic success — verified, approved, done. Never used as identity.
+        ok: {
+          DEFAULT: "var(--ok)",
           300: "#6ee7b7",
           400: "#34d399",
           500: "#10b981",
-          600: "#059669",
         },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "Segoe UI", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-sans)", "ui-sans-serif", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Consolas", "monospace"],
       },
       boxShadow: {
         card: "0 1px 2px rgba(0,0,0,0.4), 0 12px 32px -16px rgba(0,0,0,0.7)",
-        glow: "0 0 0 1px rgba(16,185,129,0.2), 0 8px 40px -12px rgba(16,185,129,0.35)",
+        glow: "0 0 0 1px rgba(124,108,255,0.22), 0 8px 40px -12px rgba(124,108,255,0.4)",
       },
       animation: {
         marquee: "marquee 32s linear infinite",

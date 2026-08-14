@@ -106,7 +106,7 @@ export default function LandingPage() {
     <>
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-line">
-        <div className="bg-grid bg-grid-fade absolute inset-0" aria-hidden="true" />
+        <div className="bg-dots bg-dots-fade absolute inset-0" aria-hidden="true" />
         <div
           aria-hidden="true"
           className="absolute right-[-15%] top-[-10%] h-[460px] w-[460px] rounded-full bg-brand-500/15 blur-[130px]"
@@ -141,7 +141,7 @@ export default function LandingPage() {
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <Link
                 href="/console"
-                className="rounded-lg bg-brand-500 px-6 py-3 font-medium text-black shadow-glow transition-colors hover:bg-brand-400"
+                className="rounded-lg bg-brand-600 px-6 py-3 font-medium text-white shadow-glow transition-colors hover:bg-brand-500"
               >
                 Open the dashboard
               </Link>
@@ -223,7 +223,7 @@ export default function LandingPage() {
 
       {/* How it works */}
       <section id="how" className="relative border-b border-line bg-surface scroll-mt-16">
-        <div className="bg-grid absolute inset-0 opacity-40" aria-hidden="true" />
+        <div className="bg-dots absolute inset-0 opacity-50" aria-hidden="true" />
         <div className="relative mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-24">
           <Reveal>
             <p className="font-mono text-sm font-medium uppercase tracking-widest text-brand-400">
@@ -312,7 +312,7 @@ export default function LandingPage() {
 
       {/* Engineering */}
       <section id="engineering" className="relative overflow-hidden border-b border-line scroll-mt-16">
-        <div className="bg-grid absolute inset-0 opacity-40" aria-hidden="true" />
+        <div className="bg-dots absolute inset-0 opacity-50" aria-hidden="true" />
         <div className="relative mx-auto max-w-6xl px-5 py-16 sm:px-6 sm:py-24">
           <Reveal>
             <p className="font-mono text-sm font-medium uppercase tracking-widest text-brand-400">

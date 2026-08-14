@@ -31,7 +31,9 @@ class LangGraphProvider:
             from langgraph.prebuilt import create_react_agent
         except ImportError as exc:
             yield AgentEvent(
-                type=EventType.ERROR, task_id=task_id, agent="langgraph",
+                type=EventType.ERROR,
+                task_id=task_id,
+                agent="langgraph",
                 payload={"error": f"pip install langgraph langchain: {exc}"},
             )
             return
@@ -44,7 +46,9 @@ class LangGraphProvider:
             message = chunk["messages"][-1]
             if getattr(message, "content", None):
                 yield AgentEvent(
-                    type=EventType.MESSAGE_DELTA, task_id=task_id,
-                    agent="langgraph", payload={"text": str(message.content)},
+                    type=EventType.MESSAGE_DELTA,
+                    task_id=task_id,
+                    agent="langgraph",
+                    payload={"text": str(message.content)},
                 )
         yield AgentEvent(type=EventType.DONE, task_id=task_id, agent="langgraph")

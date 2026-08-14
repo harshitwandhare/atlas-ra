@@ -70,12 +70,17 @@ def score_skill_match(goal: str, skills_dir: str) -> float:
 def record(version: str, scores: dict[str, float]) -> float:
     mean = sum(scores.values()) / max(len(scores), 1)
     with RESULTS.open("a", encoding="utf-8") as f:
-        f.write(json.dumps({
-            "version": version,
-            "ts": datetime.now(timezone.utc).isoformat(),
-            "mean": round(mean, 3),
-            "scores": scores,
-        }) + "\n")
+        f.write(
+            json.dumps(
+                {
+                    "version": version,
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                    "mean": round(mean, 3),
+                    "scores": scores,
+                }
+            )
+            + "\n"
+        )
     return mean
 
 

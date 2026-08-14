@@ -22,6 +22,7 @@ def _register(*exts: str) -> Callable[[_Handler], _Handler]:
         for ext in exts:
             _HANDLERS[ext] = fn
         return fn
+
     return deco
 
 
@@ -69,9 +70,17 @@ def fetch_video_transcript(url: str, workdir: str) -> Path | None:
     out = Path(workdir)
     out.mkdir(parents=True, exist_ok=True)
     cmd = [
-        "yt-dlp", "--skip-download", "--write-subs", "--write-auto-subs",
-        "--sub-langs", "en.*", "--convert-subs", "srt",
-        "-o", str(out / "%(id)s"), url,
+        "yt-dlp",
+        "--skip-download",
+        "--write-subs",
+        "--write-auto-subs",
+        "--sub-langs",
+        "en.*",
+        "--convert-subs",
+        "srt",
+        "-o",
+        str(out / "%(id)s"),
+        url,
     ]
     try:
         subprocess.run(cmd, check=True, capture_output=True, timeout=300)
@@ -90,9 +99,7 @@ def ingest(source: str, store: SemanticStore, workdir: str = ".atlas_ingest") ->
     if source.startswith(("http://", "https://")):
         sub_path = fetch_video_transcript(source, workdir)
         text = (
-            _text(sub_path)
-            if sub_path
-            else f"[no subtitles found for {source}; queue Whisper ASR]"
+            _text(sub_path) if sub_path else f"[no subtitles found for {source}; queue Whisper ASR]"
         )
     else:
         path = Path(source)

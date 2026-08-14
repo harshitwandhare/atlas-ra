@@ -1,0 +1,75 @@
+name: Security Scan
+
+# A security heartbeat independent of PR traffic: runs every 3 days (and on
+# demand) so newly disclosed dependency CVEs or leaked secrets surface even
+# when nobody is pushing. CodeQL and the OpenSSF Scorecard run weekly on their
+# own schedules; this covers secrets and supply chain on a tighter cadence.
+on:
+  schedule:
+    - cron: "0 6 */3 * *" # 06:00 UTC, every 3rd day
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "backend/pyproject.toml"
+      - "backend/uv.lock"
+      - "frontend/package-lock.json"
+      - ".github/workflows/security-scan.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    name: Secret Scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install gitleaks
+        run: |
+          v=8.30.1
+          base=https://github.com/gitleaks/gitleaks/releases/download
+          curl -sSL "$base/v$v/gitleaks_${v}_linux_x64.tar.gz" | tar -xz gitleaks
+          sudo install gitleaks /usr/local/bin/gitleaks
+      - name: Scan full history for secrets
+        run: gitleaks detect --source . --redact --no-banner --verbose
+
+  python-deps:
+    name: Python dependency audit
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "backend/uv.lock"
+      - run: uv sync --all-extras --frozen
+      - run: uv run --with pip-audit pip-audit --skip-editable
+
+  web-deps:
+    name: Web dependency audit
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      # See ci.yml — dev-only advisories with no upstream fix are excluded so
+      # this gate stays actionable.
+      - run: npm audit --audit-level=high --omit=dev
