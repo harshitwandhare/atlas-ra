@@ -2,6 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg: #08090b;
+  --surface: #0d0f12;
+  --raised: #14171c;
+  --ink: #f4f4f5;
+  --muted: #a1a1aa;
+  --faint: #71717a;
+  --line: #23262d;
+  --brand: #10b981;
+}
+
 body {
-  @apply bg-zinc-950 text-zinc-100;
+  @apply bg-bg text-ink antialiased;
+}
+
+/* Faint technical grid — used behind hero and section breaks. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+.bg-grid-fade {
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+
+/* Reveal-on-scroll: hidden until the observer adds .is-in. */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.6s cubic-bezier(0.21, 0.65, 0.36, 1),
+    transform 0.6s cubic-bezier(0.21, 0.65, 0.36, 1);
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .animate-marquee,
+  .animate-pulseDot {
+    animation: none;
+  }
 }

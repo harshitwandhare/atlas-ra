@@ -33,12 +33,12 @@ export default function ApprovalsPage() {
   return (
     <div>
       <h1 className="mb-4 text-xl font-semibold">Approvals</h1>
-      <p className="mb-4 text-sm text-zinc-400">
+      <p className="mb-4 text-sm text-muted">
         Destructive actions and outbound emails wait here. Nothing executes without you.
       </p>
       <div className="space-y-3">
         {items.map((a) => (
-          <div key={a.id} className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+          <div key={a.id} className="rounded-lg border border-line bg-surface p-4">
             <div className="mb-1 flex items-center gap-2">
               <span className="font-mono text-sm text-amber-400">{a.tool_name}</span>
               <span className={`rounded px-1.5 text-xs ${
@@ -46,7 +46,7 @@ export default function ApprovalsPage() {
                 : a.state === "approved" ? "bg-emerald-900 text-emerald-300"
                 : "bg-red-900 text-red-300"}`}>{a.state}</span>
             </div>
-            <pre className="mb-3 max-h-32 overflow-auto text-xs text-zinc-400">
+            <pre className="mb-3 max-h-32 overflow-auto text-xs text-muted">
               {JSON.stringify(a.args, null, 2)}
             </pre>
             {a.state === "pending" && (
@@ -59,7 +59,7 @@ export default function ApprovalsPage() {
             )}
           </div>
         ))}
-        {items.length === 0 && <p className="text-sm text-zinc-500">No pending approvals.</p>}
+        {items.length === 0 && <p className="text-sm text-faint">No pending approvals.</p>}
       </div>
     </div>
   );

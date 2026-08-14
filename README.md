@@ -61,7 +61,8 @@ agent core in the engineering that makes autonomy trustworthy:
 ```mermaid
 flowchart LR
     subgraph Dashboard["Next.js Dashboard (frontend/)"]
-        Chat["/ Chat"]
+        Landing["/ Landing page"]
+        Chat["/console Goal submission"]
         Activity["/activity Live feed"]
         Ledger["/ledger Task table"]
         Skills["/skills Playbooks"]
@@ -154,11 +155,12 @@ Verified against source — nothing here is aspirational.
 | `atlas.observability.tracing` | `traced_event()` context manager — wraps each event in an OpenTelemetry span, no-ops if the SDK isn't configured. |
 | `atlas.api.main` | FastAPI app: `POST /goals`, `GET/POST /tasks`, `GET /skills`, `GET/POST /approvals`, `POST /ingest`, `WS /ws`. `Bus` fans out `AgentEvent`s to connected dashboard clients. |
 | `atlas.cli` | Typer CLI: `atlas serve`, `atlas goal "…"` (submit to a running server), `atlas tasks` (ledger table), `atlas version`. |
-| `frontend/app/page.tsx` | Chat view — submits a goal via `POST /goals`, filters the live WebSocket event stream to that task. |
-| `frontend/app/activity/page.tsx` | Raw live event feed (all tasks) from `useEvents()`. |
-| `frontend/app/ledger/page.tsx` | Polls `GET /tasks` every 3s, renders the task table with state coloring. |
-| `frontend/app/skills/page.tsx` | Renders `GET /skills` as playbook cards. |
-| `frontend/app/approvals/page.tsx` | Polls `GET /approvals` every 2.5s; Approve/Deny buttons call `POST /approvals/{id}`. |
+| `frontend/app/(site)/page.tsx` | Public landing page — what ATLAS is, the task lifecycle, the layer diagram, and the engineering behind it. Static, no API dependency. |
+| `frontend/app/(app)/console/page.tsx` | Goal submission — `POST /goals`, then filters the live WebSocket event stream to that task. |
+| `frontend/app/(app)/activity/page.tsx` | Raw live event feed (all tasks) from `useEvents()`. |
+| `frontend/app/(app)/ledger/page.tsx` | Polls `GET /tasks` every 3s, renders the task table with state coloring. |
+| `frontend/app/(app)/skills/page.tsx` | Renders `GET /skills` as playbook cards. |
+| `frontend/app/(app)/approvals/page.tsx` | Polls `GET /approvals` every 2.5s; Approve/Deny buttons call `POST /approvals/{id}`. |
 | `frontend/lib/api.ts` | Typed fetch wrappers + shared `Task` / `AgentEvent` / `Skill` interfaces. |
 | `frontend/lib/useEvents.ts` | WebSocket hook with exponential-backoff reconnect, keeps the last N events. |
 
