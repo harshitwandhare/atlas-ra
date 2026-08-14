@@ -23,10 +23,38 @@
 system end to end, and the dashboard is browsable at
 [`/console`](https://atlas-ra.vercel.app/console).
 
+[![ATLAS landing page](docs/screenshots/preview/landing.png)](https://atlas-ra.vercel.app)
+
 ATLAS runs on your own machine, so the deployment has no backend attached. The dashboard
 detects that and serves illustrative sample data behind a notice saying so — nothing there
 is a live run. Point it at a local `atlas serve` and it switches to your real data with no
 configuration change.
+
+<details>
+<summary><b>More of the site</b> — task lifecycle, architecture, and the dashboard in preview mode</summary>
+
+<br>
+
+| Five checkpoints before a task counts as done | Six layers, one replaceable seam |
+|---|---|
+| [![Task lifecycle](docs/screenshots/preview/lifecycle.png)](docs/screenshots/preview/lifecycle.png) | [![Architecture](docs/screenshots/preview/architecture.png)](docs/screenshots/preview/architecture.png) |
+
+| Console — goal submission | Ledger — every task, filterable by state |
+|---|---|
+| [![Console](docs/screenshots/preview/console.png)](docs/screenshots/preview/console.png) | [![Ledger](docs/screenshots/preview/ledger.png)](docs/screenshots/preview/ledger.png) |
+
+| Approvals — destructive work waits here | Skills — versioned procedural memory |
+|---|---|
+| [![Approvals](docs/screenshots/preview/approvals.png)](docs/screenshots/preview/approvals.png) | [![Skills](docs/screenshots/preview/skills.png)](docs/screenshots/preview/skills.png) |
+
+These are captures of the hosted preview, so the data in them is illustrative. The
+screenshots below are of real runs. Regenerate this set with:
+
+```bash
+uv run python scripts/capture_screens.py
+```
+
+</details>
 
 ## Live on a real workstation
 
