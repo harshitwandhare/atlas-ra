@@ -59,7 +59,9 @@ def test_list_tasks_invalid_state(make_app):
 def test_get_unknown_task(make_app):
     api_main, _ = make_app()
     with TestClient(api_main.app) as client:
-        assert client.get("/tasks/doesnotexist").json() == {"error": "not found"}
+        resp = client.get("/tasks/doesnotexist")
+        assert resp.status_code == 404
+        assert resp.json() == {"detail": "unknown task: doesnotexist"}
 
 
 def test_skills_endpoint_lists_seeded_skill(make_app):
@@ -84,6 +86,14 @@ def test_approvals_roundtrip(make_app):
         assert resolved["state"] == "approved"
 
         assert client.get("/approvals").json()[0]["state"] == "approved"
+
+
+def test_decide_unknown_approval(make_app):
+    api_main, _ = make_app()
+    with TestClient(api_main.app) as client:
+        resp = client.post("/approvals/doesnotexist", json={"approved": True})
+        assert resp.status_code == 404
+        assert resp.json() == {"detail": "unknown approval: doesnotexist"}
 
 
 def test_ingest_endpoint_text_file(make_app, tmp_path, monkeypatch):

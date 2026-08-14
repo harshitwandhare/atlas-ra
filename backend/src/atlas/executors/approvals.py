@@ -52,7 +52,10 @@ class ApprovalQueue:
         return self._requests[request_id].state == ApprovalState.APPROVED
 
     def resolve(self, request_id: str, approved: bool) -> ApprovalRequest:
-        req = self._requests[request_id]
+        """Settle a pending request. Raises KeyError if the id is unknown."""
+        req = self._requests.get(request_id)
+        if req is None:
+            raise KeyError(request_id)
         req.state = ApprovalState.APPROVED if approved else ApprovalState.DENIED
         self._events[request_id].set()
         return req
