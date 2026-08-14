@@ -26,10 +26,10 @@ StreamDiffusion pin order is load-bearing, see `skills/streamdiffusion-windows-i
 | Package | Version | Note |
 |---|---|---|
 | Node.js | 20 (CI + Vercel) | |
-| Next.js | **14.2.35** exact | 14.2.5→14.2.35 closed a critical CVE cluster (cache poisoning, auth bypass, SSRF) |
+| Next.js | **15.5.23** exact | 14.2.35 carried a high-severity Image Optimizer DoS advisory (GHSA range `>=10.0.0 <15.5.10`). The app uses no `next/image` and no async request APIs, so the 14→15 migration surface was empty. |
 | React | ^18.3.1 | |
-| Storybook | ^9.1.20 | 8.x broke against Next 14.2.35's webpack; essentials/interactions merged into core in v9 |
-| eslint-config-next | 14.2.35 exact | must track the Next version |
+| Storybook | ^9.1.20 | 8.x broke against Next's webpack; essentials/interactions merged into core in v9 |
+| eslint-config-next | 15.5.23 exact | must track the Next version |
 | Tailwind | ^3.4.4 | |
 
 ## GPU / RA stack (host installs, outside this repo)

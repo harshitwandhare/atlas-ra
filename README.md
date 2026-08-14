@@ -13,8 +13,13 @@
 > every step live.
 
 [![CI](https://github.com/harshitwandhare/atlas-ra/actions/workflows/ci.yml/badge.svg)](https://github.com/harshitwandhare/atlas-ra/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/harshitwandhare/atlas-ra/actions/workflows/codeql.yml/badge.svg)](https://github.com/harshitwandhare/atlas-ra/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/harshitwandhare/atlas-ra/badge)](https://securityscorecards.dev/viewer/?uri=github.com/harshitwandhare/atlas-ra)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
-![Next.js](https://img.shields.io/badge/next.js-14-black)
+![Next.js](https://img.shields.io/badge/next.js-15-black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Try it
@@ -91,7 +96,8 @@ agent core in the engineering that makes autonomy trustworthy:
   markdown skill playbooks matched by trigger keywords).
 - **Tiered, approval-gated execution** — tools declare a tier (API → CLI → browser → screen)
   and a risk class; `destructive`-risk tools are routed through an `ApprovalQueue` and never
-  execute without a human decision from the dashboard.
+  execute without a human decision from the dashboard. Tiers 1 and 2 have registered tools
+  today; browser and screen are roadmap (see [the audit](docs/REQUIREMENTS_AUDIT.md)).
 - **Verification before completion** — a `Critic` reviews the run transcript and returns
   `approve` / `revise`; the orchestrator only marks a task `DONE` on approval.
 - **Provider abstraction** — `AgentProvider` is a `Protocol` with three implementations
@@ -102,54 +108,21 @@ agent core in the engineering that makes autonomy trustworthy:
 ## Architecture
 
 ```mermaid
-flowchart LR
-    subgraph Dashboard["Next.js Dashboard (frontend/)"]
-        Landing["/ Landing page"]
-        Chat["/console Goal submission"]
-        Activity["/activity Live feed"]
-        Ledger["/ledger Task table"]
-        Skills["/skills Playbooks"]
-        Approvals["/approvals Approval queue"]
-    end
+flowchart TB
+    Goal["Goal in - dashboard or atlas goal"] --> Route["Orchestrator routes to a team by keyword"]
+    Route --> Skills["Procedural memory injects matched skills"]
+    Skills --> Run["Team runs against the configured provider"]
+    Run --> Gate{"Tool declared destructive?"}
+    Gate -- "yes" --> Queue["ApprovalQueue blocks on a human decision"]
+    Gate -- "no" --> Critic
+    Queue --> Critic["Critic reviews the transcript"]
+    Critic -- "revise, retry with feedback" --> Run
+    Critic -- "approve" --> Done["DONE - result persisted to the SQLite ledger"]
 
-    subgraph API["FastAPI Gateway (backend/src/atlas/api)"]
-        REST["REST: /goals /tasks /skills /approvals /ingest"]
-        WS["WebSocket: /ws (AgentEvent fan-out)"]
-    end
+    Run -. "every AgentEvent" .-> Bus["WebSocket /ws"]
+    Bus --> Dash["Dashboard - live feed, ledger, approvals"]
 
-    subgraph Core["Orchestrator (backend/src/atlas/orchestrator)"]
-        Route["_route(goal) -> team"]
-        Run["_run(): call provider, log steps, request Critic review"]
-    end
-
-    subgraph Teams["Teams (backend/src/atlas/teams)"]
-        Systems["SystemsTeam"]
-        Research["ResearchTeam"]
-        Ops["OpsTeam"]
-        Critic["Critic — approve / revise"]
-    end
-
-    subgraph Providers["Providers (backend/src/atlas/providers)"]
-        Claude["ClaudeProvider"]
-        LangGraph["LangGraphProvider"]
-        Ollama["OllamaProvider"]
-    end
-
-    subgraph Memory["Memory (backend/src/atlas/memory)"]
-        Episodic["Ledger — SQLite tasks/steps"]
-        Semantic["SemanticStore — keyword-overlap / LanceDB-shaped"]
-        Procedural["SkillStore — skills/*.md"]
-    end
-
-    Chat -- POST /goals --> REST
-    REST --> Route --> Run
-    Run --> Systems & Research & Ops
-    Run -- get_provider(settings.provider) --> Claude & LangGraph & Ollama
-    Run --> Critic
-    Run --> Episodic
-    Run -- match(goal) --> Procedural
-    Run -- AgentEvent --> WS --> Activity & Ledger
-    Approvals -- POST /approvals/id --> API
+    Providers["Providers: Claude Agent SDK - LangGraph - Ollama<br/>selected by ATLAS_PROVIDER"] -.-> Run
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full task lifecycle, memory
@@ -239,13 +212,33 @@ uv run python -m evals.run_evals
 
 ## CI / quality gates
 
-`.github/workflows/ci.yml` runs on every push and pull request to `main`, with pip (uv)
-and npm dependency caching:
+Every push and pull request to `main` runs the full matrix below. All actions are pinned
+by commit SHA — a tag can be moved to point at new code, a SHA cannot — and Dependabot's
+`github-actions` ecosystem keeps those pins current.
 
-| Job | Steps |
+| Gate | What runs |
 |---|---|
-| `backend` | `ruff check` → `mypy --strict` → `pytest` → `evals.run_evals` (scored regression tasks in `backend/evals/`, results tracked in `backend/evals/results.jsonl`) |
-| `frontend` | `npm ci` → `next lint` → `next build` |
+| Lint & Format | `ruff check` + `ruff format --check` |
+| Type Check | `mypy --strict` across the backend |
+| Test | `pytest` on Python 3.10, 3.11, and 3.12 |
+| Evals | `evals.run_evals` — scored regression tasks, must clear the baseline |
+| Secret Scan | `gitleaks` over full history |
+| Supply Chain | `pip-audit` for known CVEs + licence check (fails on GPL/AGPL/SSPL) |
+| Web | `next lint` → `tsc --noEmit` → `next build` |
+| Web Supply Chain | `npm audit --audit-level=high` on shipped dependencies |
+
+Three more run on their own schedules:
+
+| Workflow | Cadence |
+|---|---|
+| `codeql.yml` | Every push/PR plus a weekly deep scan, Python and TypeScript, `security-and-quality` queries |
+| `scorecard.yml` | Weekly OpenSSF Scorecard, results published to code scanning |
+| `security-scan.yml` | Every third day — secrets and dependency audits, independent of PR traffic |
+
+The web audit is scoped with `--omit=dev`. Two high-severity advisories remain in the dev
+tree (`image-size`, reachable only through `@storybook/nextjs`) and have no fixed release
+upstream; gating on them would mean a permanently red build nobody can turn green. Runtime
+dependencies are gated strictly.
 
 `.github/workflows/deploy.yml` deploys `frontend/` to Vercel on push to `main` (gated
 behind `VERCEL_TOKEN` / `VERCEL_ORG_ID` / `VERCEL_PROJECT_ID` repo secrets — see the
@@ -263,7 +256,7 @@ workflow file for one-time setup notes).
 | Observability | OpenTelemetry API/SDK, optional OTLP export |
 | Package/lint/type | uv, ruff, mypy (strict) |
 | Testing | pytest, pytest-asyncio |
-| Frontend | Next.js 14 (App Router), TypeScript, Tailwind CSS |
+| Frontend | Next.js 15 (App Router), TypeScript, Tailwind CSS |
 | Realtime | Native WebSocket (`/ws`), reconnect with backoff |
 | CI/CD | GitHub Actions (`ci.yml`, `deploy.yml`), Vercel |
 
@@ -272,7 +265,7 @@ workflow file for one-time setup notes).
 ```
 backend/    Typed Python package (uv, ruff, mypy, pytest) — orchestrator, providers,
             teams, memory, executors, comms, ingest, api
-frontend/   Next.js 14 dashboard (App Router, Tailwind, WebSocket client), Storybook
+frontend/   Next.js 15 dashboard (App Router, Tailwind, WebSocket client), Storybook
 skills/     Procedural memory — versioned playbooks the system learns and uses
 docs/       Architecture, data models, ADRs, roadmap
 ```
