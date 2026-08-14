@@ -57,8 +57,11 @@ class ToolRegistry:
 async def _run_python(code: str, timeout: float = 120.0) -> str:
     """Tier 1: run Python in a subprocess with a hard timeout."""
     proc = await asyncio.create_subprocess_exec(
-        "python", "-c", code,
-        stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT,
+        "python",
+        "-c",
+        code,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT,
     )
     try:
         out, _ = await asyncio.wait_for(proc.communicate(), timeout)
@@ -71,8 +74,12 @@ async def _run_python(code: str, timeout: float = 120.0) -> str:
 async def _run_powershell(command: str, timeout: float = 300.0) -> str:
     """Tier 2: run PowerShell on the Windows host."""
     proc = await asyncio.create_subprocess_exec(
-        "powershell", "-NoProfile", "-Command", command,
-        stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT,
+        "powershell",
+        "-NoProfile",
+        "-Command",
+        command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.STDOUT,
     )
     try:
         out, _ = await asyncio.wait_for(proc.communicate(), timeout)
@@ -101,9 +108,7 @@ def default_registry() -> ToolRegistry:
         Tool("run_python", "Run Python code in a subprocess", 1, Risk.REVERSIBLE, _run_python)
     )
     reg.register(
-        Tool(
-            "run_powershell", "Run a PowerShell command", 2, Risk.REVERSIBLE, _run_powershell
-        )
+        Tool("run_powershell", "Run a PowerShell command", 2, Risk.REVERSIBLE, _run_powershell)
     )
     reg.register(
         Tool(

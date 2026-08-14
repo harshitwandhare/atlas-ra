@@ -29,11 +29,9 @@ def test_ledger_list_ordering_and_limit(tmp_path):
 def test_ledger_steps_roundtrip(tmp_path):
     ledger = Ledger(str(tmp_path / "l.db"))
     task = ledger.create_task("g", "ops")
-    ledger.log_step(task.id, "message_delta", {"text": "unicode ✓ and \"quotes\""})
+    ledger.log_step(task.id, "message_delta", {"text": 'unicode ✓ and "quotes"'})
 
-    row = ledger._conn.execute(
-        "SELECT payload FROM steps WHERE task_id=?", (task.id,)
-    ).fetchone()
+    row = ledger._conn.execute("SELECT payload FROM steps WHERE task_id=?", (task.id,)).fetchone()
     assert "unicode" in row[0]
 
 

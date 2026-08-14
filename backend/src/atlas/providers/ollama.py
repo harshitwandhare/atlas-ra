@@ -42,9 +42,11 @@ class OllamaProvider:
             }
         ).encode()
         req = urllib.request.Request(
-            f"{self._base}/api/generate", data=body,
+            f"{self._base}/api/generate",
+            data=body,
             headers={"Content-Type": "application/json"},
         )
+
         def _blocking_call() -> str:
             with urllib.request.urlopen(req, timeout=600) as resp:
                 return str(json.loads(resp.read())["response"])
@@ -54,12 +56,16 @@ class OllamaProvider:
             # freeze the whole event loop (API + dashboard) for that long.
             text = await asyncio.to_thread(_blocking_call)
             yield AgentEvent(
-                type=EventType.MESSAGE_DELTA, task_id=task_id,
-                agent="ollama", payload={"text": text},
+                type=EventType.MESSAGE_DELTA,
+                task_id=task_id,
+                agent="ollama",
+                payload={"text": text},
             )
             yield AgentEvent(type=EventType.DONE, task_id=task_id, agent="ollama")
         except Exception as exc:
             yield AgentEvent(
-                type=EventType.ERROR, task_id=task_id,
-                agent="ollama", payload={"error": str(exc)},
+                type=EventType.ERROR,
+                task_id=task_id,
+                agent="ollama",
+                payload={"error": str(exc)},
             )

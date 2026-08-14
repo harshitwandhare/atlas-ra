@@ -38,9 +38,7 @@ class ApprovalQueue:
         self._requests[req.id] = req
         self._events[req.id] = asyncio.Event()
         if self._notifier is not None:
-            await self._notifier.notify(
-                f"ATLAS approval needed: {tool_name}({args}) — id {req.id}"
-            )
+            await self._notifier.notify(f"ATLAS approval needed: {tool_name}({args}) — id {req.id}")
         return req.id
 
     async def wait(self, request_id: str, timeout: float = 3600.0) -> bool:

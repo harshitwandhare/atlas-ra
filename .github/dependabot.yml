@@ -1,0 +1,34 @@
+# Automated dependency update PRs — weekly, grouped to keep noise low.
+version: 2
+updates:
+  - package-ecosystem: "uv"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    groups:
+      python-deps:
+        patterns: ["*"]
+    commit-message:
+      prefix: "build(deps)"
+
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    groups:
+      web-deps:
+        patterns: ["*"]
+    commit-message:
+      prefix: "build(deps)"
+
+  # Keeps the SHA-pinned actions in .github/workflows current — pinning by SHA
+  # is only safe if something is watching for updates.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "build(deps)"

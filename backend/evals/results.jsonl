@@ -3,3 +3,4 @@
 {"version": "offline", "ts": "2026-07-17T18:07:59.943005+00:00", "mean": 1.0, "scores": {"lora_oom_recovery": 1.0, "streamdiffusion_torch_order": 1.0, "wan22_vram_math": 1.0}}
 {"version": "offline", "ts": "2026-07-18T07:08:29.699823+00:00", "mean": 1.0, "scores": {"lora_oom_recovery": 1.0, "streamdiffusion_torch_order": 1.0, "wan22_vram_math": 1.0}}
 {"version": "offline", "ts": "2026-08-14T21:20:21.046462+00:00", "mean": 1.0, "scores": {"lora_oom_recovery": 1.0, "streamdiffusion_torch_order": 1.0, "wan22_vram_math": 1.0}}
+{"version": "offline", "ts": "2026-08-14T23:25:57.988690+00:00", "mean": 1.0, "scores": {"lora_oom_recovery": 1.0, "streamdiffusion_torch_order": 1.0, "wan22_vram_math": 1.0}}

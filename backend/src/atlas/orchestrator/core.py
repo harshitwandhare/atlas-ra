@@ -58,9 +58,7 @@ class Orchestrator:
                     payload={"error": f"{type(exc).__name__}: {exc}"},
                 )
             )
-            await self._transition(
-                task_id, TaskState.ESCALATED, result=f"Unhandled error: {exc}"
-            )
+            await self._transition(task_id, TaskState.ESCALATED, result=f"Unhandled error: {exc}")
 
     @staticmethod
     def _route(goal: str) -> str:
@@ -118,9 +116,7 @@ class Orchestrator:
 
         await self._transition(task_id, TaskState.ESCALATED, result="Retries exhausted")
 
-    async def _transition(
-        self, task_id: str, state: TaskState, result: str | None = None
-    ) -> None:
+    async def _transition(self, task_id: str, state: TaskState, result: str | None = None) -> None:
         self._ledger.set_state(task_id, state, result)
         await self._sink(
             AgentEvent(

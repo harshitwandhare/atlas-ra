@@ -31,10 +31,7 @@ class SkillStore:
     def match(self, goal: str) -> list[Skill]:
         """Return skills whose triggers appear in the goal (case-insensitive)."""
         goal_lower = goal.lower()
-        return [
-            s for s in self.load_all()
-            if any(t.lower() in goal_lower for t in s.triggers)
-        ]
+        return [s for s in self.load_all() if any(t.lower() in goal_lower for t in s.triggers)]
 
     @staticmethod
     def _parse(path: Path) -> Skill | None:
