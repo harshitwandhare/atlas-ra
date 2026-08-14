@@ -24,7 +24,7 @@ export default function ConsolePage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="max-w-3xl">
       <h1 className="text-xl font-semibold">Submit a goal</h1>
       <p className="mt-1 text-sm text-muted">
         The orchestrator routes it to a team, injects any matching skills, and streams every step
