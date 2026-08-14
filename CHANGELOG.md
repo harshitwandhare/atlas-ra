@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.4.1 — 2026-08-14
+### Fixed
+- Landing page claimed **4 execution tiers**. `executors/registry.py` documents
+  four (1=API/code, 2=CLI, 3=browser, 4=screen), but `default_registry()` only
+  registers tools at tiers 1 and 2 — tiers 3 and 4 are roadmap, as
+  `docs/REQUIREMENTS_AUDIT.md` already stated. Now reads "2 execution tiers
+  live".
+- Hero stats used `flex-col-reverse`, which packs from the bottom, so the one
+  label wrapping to two lines pushed its number out of line with the other
+  three. Ordering within a normal column packs from the top instead.
+- Dashboard: `/console` centred itself in `max-w-3xl` while the preview banner
+  filled the whole `main`, so their left edges did not align. All dashboard
+  screens now share one `max-w-6xl` container.
+### Added
+- `scripts/capture_screens.py` — reproducible README screenshots via headless
+  chromium, with animations frozen so reruns are deterministic. Writes to
+  `docs/screenshots/preview/`, kept separate from the real-run captures it
+  cannot reproduce.
+- README: landing-page hero plus a gallery of the site and dashboard.
+
 ## 0.4.0 — 2026-08-14
 ### Added
 - Landing page at `/` — what ATLAS is, why it exists, the five-checkpoint task
