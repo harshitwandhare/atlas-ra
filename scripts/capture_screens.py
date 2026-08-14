@@ -100,7 +100,7 @@ def main() -> None:
     parser.add_argument("--base-url", default=DEFAULT_BASE_URL)
     args = parser.parse_args()
     capture(args.base_url)
-    print(f"\nwrote {len(SHOTS)} screenshots to {OUT_DIR}")
+    print(f"\nwrote {len(LANDING_SHOTS) + len(APP_SHOTS)} screenshots to {OUT_DIR}")
 
 
 if __name__ == "__main__":

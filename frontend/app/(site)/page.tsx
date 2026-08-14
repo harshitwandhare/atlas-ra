@@ -10,7 +10,9 @@ const REPO = "https://github.com/harshitwandhare/atlas-ra";
 const heroStats = [
   { value: "3", label: "swappable providers" },
   { value: "3", label: "memory tiers" },
-  { value: "4", label: "execution tiers" },
+  // Tiers 3 (browser) and 4 (screen) are declared in the registry docstring but
+  // have no registered tools yet, so claiming four would overstate it.
+  { value: "2", label: "execution tiers live" },
   { value: "0", label: "unapproved destructive calls" },
 ];
 
@@ -155,10 +157,13 @@ export default function LandingPage() {
 
             <dl className="mt-12 grid max-w-lg grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4">
               {heroStats.map((s) => (
-                /* Reversed so the value reads on top while dt still precedes dd. */
-                <div key={s.label} className="flex flex-col-reverse">
-                  <dt className="mt-0.5 text-xs leading-snug text-faint">{s.label}</dt>
-                  <dd className="text-2xl font-bold text-ink">{s.value}</dd>
+                /* `order` rather than flex-col-reverse: the value reads on top
+                   while dt still precedes dd in the DOM, and content packs from
+                   the top, so a label that wraps to two lines grows downward
+                   instead of shoving its number out of line with the rest. */
+                <div key={s.label} className="flex flex-col">
+                  <dt className="order-2 mt-0.5 text-xs leading-snug text-faint">{s.label}</dt>
+                  <dd className="order-1 text-2xl font-bold text-ink">{s.value}</dd>
                 </div>
               ))}
             </dl>
