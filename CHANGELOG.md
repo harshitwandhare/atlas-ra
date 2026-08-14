@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.5.0 — 2026-08-14
+### Added
+- Full CI/CD pipeline. Previously two jobs on floating action tags with no
+  permissions block, no dependency scanning, and a single Python version. Now:
+  lint + format, `mypy --strict`, tests on 3.10/3.11/3.12, evals, gitleaks over
+  full history, `pip-audit`, licence check, `npm audit`, `tsc --noEmit`, and
+  build — plus CodeQL and OpenSSF Scorecard weekly and a security heartbeat
+  every third day. Actions are pinned by commit SHA; Dependabot watches them,
+  the Python deps, and the npm deps.
+- `scripts/capture_screens.py` and a README screenshot gallery.
+- CONTRIBUTING now states how contributions are licensed (MIT, inbound equals
+  outbound, with room to relicense future releases).
+### Changed
+- New visual identity: IBM Plex Sans / Space Grotesk / IBM Plex Mono via
+  `next/font`, an indigo signal colour on cool blue-black, and a dot-matrix
+  backdrop. Emerald is now reserved for the semantic done/approved state, so
+  brand colour and success colour no longer mean the same thing.
+- Next.js 14.2.35 → 15.5.23.
+- README architecture diagram replaced with the task lifecycle; the component
+  map stays in `docs/ARCHITECTURE.md`.
+### Fixed
+- **The site loaded no fonts at all.** `tailwind.config.ts` referenced
+  `--font-sans` but nothing defined it and `body` never applied `font-sans`, so
+  every page rendered in the browser's default serif.
+- `cryptography` 49.0.0 carried PYSEC-2026-3552 → 50.0.0.
+- Next.js 14.2.35 carried a high-severity Image Optimizer DoS advisory. The app
+  uses no `next/image` and no async request APIs, so the migration surface was
+  empty.
+- `brace-expansion`, `fast-uri`, `glob`, `nanoid`, `js-yaml`, `postcss`, and
+  `sharp` pinned or overridden out of their advisory ranges.
+- Hero event stream sliced its step list, so the card grew as steps appeared and
+  shoved the rest of the hero down the page. All steps now stay mounted and fade
+  in, reserving full height from first paint.
+- Preview notice claimed running `atlas serve` would switch the hosted page to
+  real data. Browsers block an `https` origin from calling `http://localhost`,
+  and the API allows only `http://localhost:3000` as a CORS origin, so it never
+  could.
+- The API reported version `0.1.0` while the package was `0.4.1`; it now reads
+  the installed version.
+- 15 backend files were unformatted.
+
 ## 0.4.1 — 2026-08-14
 ### Fixed
 - Landing page claimed **4 execution tiers**. `executors/registry.py` documents
