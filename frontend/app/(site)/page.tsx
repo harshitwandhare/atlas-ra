@@ -112,7 +112,11 @@ export default function LandingPage() {
           className="absolute right-[-15%] top-[-10%] h-[460px] w-[460px] rounded-full bg-brand-500/15 blur-[130px]"
         />
 
-        <div className="relative mx-auto grid max-w-6xl gap-12 px-5 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+        {/* Padding stays modest so the whole hero — headline, CTAs, stats and
+            the event stream beside them — clears the fold on a laptop window
+            with a bookmarks bar. At the old py-28 the hero measured 812px,
+            which clipped the stats row in anything under ~880px of viewport. */}
+        <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-12 sm:px-6 sm:py-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-line bg-white/[0.03] px-3 py-1 text-xs font-medium tracking-wide text-brand-300">
               <span className="relative flex h-2 w-2">
