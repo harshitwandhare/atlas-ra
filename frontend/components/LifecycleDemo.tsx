@@ -52,12 +52,12 @@ export function LifecycleDemo() {
       {/* Every step stays mounted and fades in, so the card reserves its full
           height from first paint. Slicing the list instead made the container
           grow with each step and shoved the rest of the hero down the page. */}
-      <ul className="space-y-2 p-4">
+      <ul className="space-y-1.5 p-3.5">
         {STEPS.map((s, i) => (
           <li
             key={i}
             aria-hidden={i >= count}
-            className={`rounded-lg border border-line bg-bg px-3 py-2.5 transition-all duration-500 ease-out ${
+            className={`rounded-lg border border-line bg-bg px-3 py-2 transition-all duration-500 ease-out ${
               i < count ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
             }`}
           >
