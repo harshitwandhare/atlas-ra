@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 type Step = { type: string; agent: string; text: string; tone?: "ok" | "sky" | "amber" };
 
@@ -22,12 +22,29 @@ const toneClass: Record<string, string> = {
   amber: "bg-amber-500/15 text-amber-300",
 };
 
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+
+function subscribeReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(REDUCED_MOTION);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+function useReducedMotion() {
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => false,
+  );
+}
+
 export function LifecycleDemo() {
   const [count, setCount] = useState(0);
+  const reducedMotion = useReducedMotion();
+  const shown = reducedMotion ? STEPS.length : count;
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setCount(STEPS.length);
+    if (reducedMotion) {
       return;
     }
     if (count >= STEPS.length) {
@@ -36,7 +53,7 @@ export function LifecycleDemo() {
     }
     const next = setTimeout(() => setCount((c) => c + 1), count === 0 ? 500 : 900);
     return () => clearTimeout(next);
-  }, [count]);
+  }, [count, reducedMotion]);
 
   return (
     <div className="w-full overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
@@ -56,9 +73,9 @@ export function LifecycleDemo() {
         {STEPS.map((s, i) => (
           <li
             key={i}
-            aria-hidden={i >= count}
+            aria-hidden={i >= shown}
             className={`rounded-lg border border-line bg-bg px-3 py-2 transition-all duration-500 ease-out ${
-              i < count ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
+              i < shown ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0"
             }`}
           >
             <div className="flex items-center gap-2">
