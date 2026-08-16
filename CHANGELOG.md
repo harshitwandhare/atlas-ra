@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.6.0 — 2026-08-15
+### Changed
+- React 18 → 19 and Next.js 15.5 → 16.3, landed as separate steps so each was
+  verifiable on its own rather than as one bundled dependency PR.
+- Next 16 removes `next lint`, so linting moved to the ESLint CLI:
+  `.eslintrc.json` became `eslint.config.mjs` in flat-config form and the `lint`
+  script is now `eslint .`. ESLint stays on 9.x and TypeScript on 5.x, because
+  eslint-config-next bundles an eslint-plugin-react that calls the
+  `context.getFilename()` ESLint 10 removed, and typescript-eslint refuses to
+  load against TypeScript 7.
+- Dependabot now holds back typescript 7, eslint 10 and tailwindcss 4. The web
+  deps are updated as one group, so a single incompatible major was turning the
+  whole batch red and blocking the safe bumps behind it.
+### Fixed
+- **Every brace-containing glob threw `TypeError: expand is not a function`.**
+  The `brace-expansion` override pinned the whole tree to 5.0.9, which is
+  ESM-only, but `minimatch@3` — still present under eslint core and the import,
+  jsx-a11y and react plugins — needs the v1 CommonJS default export. Each
+  vulnerable major is now pinned to its own patched release (1.1.18, 2.1.4), so
+  the advisories stay closed and both API shapes resolve correctly.
+- The hero event stream called `setCount` synchronously inside an effect body on
+  every run of the reduced-motion branch, causing cascading renders. Reduced
+  motion is now read through `useSyncExternalStore`, which is SSR-safe and also
+  responds to preference changes live instead of only at mount.
+
 ## 0.5.0 — 2026-08-14
 ### Added
 - Full CI/CD pipeline. Previously two jobs on floating action tags with no
