@@ -18,6 +18,21 @@ updates:
     groups:
       web-deps:
         patterns: ["*"]
+    # These majors are held back because they break the toolchain today, and
+    # grouping means one of them turns the whole batch red. Revisit each time
+    # the blocker below clears.
+    ignore:
+      # typescript-eslint refuses to load against TS 7 and exits on require.
+      - dependency-name: "typescript"
+        versions: ["7.x"]
+      # eslint-config-next bundles an eslint-plugin-react that still calls the
+      # context.getFilename() that ESLint 10 removed, so 10 crashes per file.
+      - dependency-name: "eslint"
+        versions: ["10.x"]
+      # Tailwind 4 replaces the PostCSS plugin and the config format; needs a
+      # deliberate migration rather than a version bump.
+      - dependency-name: "tailwindcss"
+        versions: ["4.x"]
     commit-message:
       prefix: "build(deps)"
 
