@@ -80,6 +80,7 @@ def fetch_video_transcript(url: str, workdir: str) -> Path | None:
         "srt",
         "-o",
         str(out / "%(id)s"),
+        "--",
         url,
     ]
     try:
