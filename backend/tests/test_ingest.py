@@ -1,4 +1,6 @@
-from atlas.ingest.pipeline import ingest
+from unittest.mock import patch
+
+from atlas.ingest.pipeline import fetch_video_transcript, ingest
 from atlas.ingest.procedures import extract_procedure
 from atlas.memory.semantic import SemanticStore
 
@@ -26,3 +28,17 @@ def test_procedure_extraction_from_tutorial():
 
 def test_no_procedure_in_prose():
     assert extract_procedure("This is just an essay about art history.") is None
+
+
+def test_fetch_video_transcript_guards_url_against_flag_injection(tmp_path):
+    # A URL crafted to look like a yt-dlp flag must still be treated as the
+    # video URL (not parsed as an option), and never reach a shell.
+    hostile_url = "https://example.com/--exec=touch pwned"
+
+    with patch("subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        fetch_video_transcript(hostile_url, str(tmp_path))
+
+    cmd = mock_run.call_args[0][0]
+    assert cmd[-2:] == ["--", hostile_url]
+    assert mock_run.call_args.kwargs.get("shell") is not True
