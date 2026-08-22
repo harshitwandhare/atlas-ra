@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import atlas.orchestrator.core as core
 from atlas.events import EventType
 from atlas.memory import Ledger, SkillStore
 from atlas.memory.episodic import TaskState
-from atlas.orchestrator.core import Orchestrator
 from tests.conftest import SUCCESS_SCRIPT, FakeProvider, SinkSpy, poll_until
 
 ERROR_SCRIPT = [(EventType.ERROR, {"error": "boom"})]
@@ -16,14 +16,12 @@ BAD_TRANSCRIPT_SCRIPT = [
 
 
 def make_orchestrator(tmp_path, monkeypatch, provider):
-    import atlas.orchestrator.core as core
-
     monkeypatch.setattr(core, "get_provider", lambda name: provider)
     ledger = Ledger(str(tmp_path / "test.db"))
     skills_dir = tmp_path / "skills"
     skills_dir.mkdir(exist_ok=True)
     sink = SinkSpy()
-    orch = Orchestrator(ledger, SkillStore(str(skills_dir)), sink)
+    orch = core.Orchestrator(ledger, SkillStore(str(skills_dir)), sink)
     return orch, ledger, sink, skills_dir
 
 
@@ -130,7 +128,7 @@ async def test_unknown_team_from_future_router_is_contained(tmp_path, monkeypatc
     """A routing bug must escalate the task, not orphan it (supervision boundary)."""
     fake = FakeProvider()
     orch, ledger, sink, _ = make_orchestrator(tmp_path, monkeypatch, fake)
-    monkeypatch.setattr(Orchestrator, "_route", staticmethod(lambda goal: "no-such-team"))
+    monkeypatch.setattr(core.Orchestrator, "_route", staticmethod(lambda goal: "no-such-team"))
 
     task_id = await orch.submit_goal("anything")
     assert await poll_until(lambda: ledger.get_task(task_id).state == TaskState.ESCALATED)
