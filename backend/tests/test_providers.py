@@ -69,7 +69,7 @@ def _fake_sdk(query_impl):
     """Install a stub claude_agent_sdk module; returns it for inspection."""
     mod = types.ModuleType("claude_agent_sdk")
     mod.query = query_impl
-    mod.ClaudeAgentOptions = lambda **kw: types.SimpleNamespace(**kw)
+    mod.ClaudeAgentOptions = types.SimpleNamespace
     return mod
 
 
