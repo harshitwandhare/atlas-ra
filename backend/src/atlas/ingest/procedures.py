@@ -20,7 +20,9 @@ def extract_procedure(text: str, min_steps: int = 3) -> str | None:
     """Extract ordered imperative steps; returns a draft playbook or None."""
     steps = []
     for line in text.splitlines():
-        clean = re.sub(r"<[^>]+>", "", line).strip()  # strip srt/html tags
+        # bound the tag body so an unclosed "<" run in untrusted input can't
+        # force quadratic backtracking (CodeQL py/polynomial-redos)
+        clean = re.sub(r"<[^>]{0,200}>", "", line).strip()  # strip srt/html tags
         if _IMPERATIVE.match(clean) and len(clean) > 12:
             steps.append(clean.rstrip("."))
     if len(steps) < min_steps:
