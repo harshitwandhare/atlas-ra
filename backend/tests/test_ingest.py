@@ -30,6 +30,22 @@ def test_no_procedure_in_prose():
     assert extract_procedure("This is just an essay about art history.") is None
 
 
+def test_procedure_extraction_handles_unclosed_tag_runs():
+    # A line with many "<" and no closing ">" used to make the tag-stripping
+    # regex backtrack quadratically. It should stay fast and just pass the
+    # line through untouched by the tag stripper.
+    hostile_line = "1. Install the tool " + "<" * 20000
+    transcript = "\n".join(
+        [
+            hostile_line,
+            "2. Clone the repository",
+            "3. Run the setup script",
+        ]
+    )
+    draft = extract_procedure(transcript)
+    assert draft and "Install the tool" in draft
+
+
 def test_fetch_video_transcript_guards_url_against_flag_injection(tmp_path):
     # A URL crafted to look like a yt-dlp flag must still be treated as the
     # video URL (not parsed as an option), and never reach a shell.
