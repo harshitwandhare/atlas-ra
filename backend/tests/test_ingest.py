@@ -58,3 +58,19 @@ def test_fetch_video_transcript_guards_url_against_flag_injection(tmp_path):
     cmd = mock_run.call_args[0][0]
     assert cmd[-2:] == ["--", hostile_url]
     assert mock_run.call_args.kwargs.get("shell") is not True
+
+
+def test_fetch_video_transcript_rejects_non_http_scheme(tmp_path):
+    with patch("subprocess.run") as mock_run:
+        result = fetch_video_transcript("file:///etc/passwd", str(tmp_path))
+
+    assert result is None
+    mock_run.assert_not_called()
+
+
+def test_fetch_video_transcript_rejects_url_without_host(tmp_path):
+    with patch("subprocess.run") as mock_run:
+        result = fetch_video_transcript("https://", str(tmp_path))
+
+    assert result is None
+    mock_run.assert_not_called()

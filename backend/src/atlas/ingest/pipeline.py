@@ -66,6 +66,11 @@ def _text(path: Path) -> str:
 def fetch_video_transcript(url: str, workdir: str) -> Path | None:
     """Download subtitles for a video URL via yt-dlp (auto-subs fallback)."""
     import subprocess
+    from urllib.parse import urlparse
+
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        return None
 
     out = Path(workdir)
     out.mkdir(parents=True, exist_ok=True)
