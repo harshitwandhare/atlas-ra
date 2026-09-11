@@ -11,22 +11,22 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "next": "^16.3.3",
+    "next": "^16.3.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "@storybook/addon-a11y": "^10.5.10",
-    "@storybook/nextjs": "^10.5.10",
+    "@storybook/addon-a11y": "^10.6.0",
+    "@storybook/nextjs": "^10.6.0",
     "@storybook/react": "^10.5.7",
-    "@types/node": "^26.4.0",
+    "@types/node": "^26.5.0",
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.5",
-    "autoprefixer": "^10.4.19",
+    "@types/react-dom": "^19.2.7",
+    "autoprefixer": "^10.5.5",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.3.3",
-    "eslint-plugin-storybook": "^10.5.10",
-    "postcss": "8.5.26",
+    "eslint-config-next": "^16.3.4",
+    "eslint-plugin-storybook": "^10.6.0",
+    "postcss": "8.5.28",
     "storybook": "^10.5.7",
     "tailwindcss": "^3.4.4",
     "typescript": "^6"
