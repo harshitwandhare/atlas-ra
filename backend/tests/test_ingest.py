@@ -74,3 +74,28 @@ def test_fetch_video_transcript_rejects_url_without_host(tmp_path):
 
     assert result is None
     mock_run.assert_not_called()
+
+
+def test_fetch_video_transcript_rejects_loopback_host(tmp_path):
+    with patch("subprocess.run") as mock_run:
+        result = fetch_video_transcript("http://127.0.0.1:8080/internal", str(tmp_path))
+
+    assert result is None
+    mock_run.assert_not_called()
+
+
+def test_fetch_video_transcript_rejects_private_network_host(tmp_path):
+    with patch("subprocess.run") as mock_run:
+        result = fetch_video_transcript("http://10.0.0.5/metadata", str(tmp_path))
+
+    assert result is None
+    mock_run.assert_not_called()
+
+
+def test_fetch_video_transcript_allows_public_host(tmp_path):
+    with patch("subprocess.run") as mock_run, patch("socket.getaddrinfo") as mock_dns:
+        mock_dns.return_value = [(2, 1, 6, "", ("93.184.216.34", 0))]
+        mock_run.return_value.returncode = 0
+        fetch_video_transcript("https://example.com/watch?v=abc", str(tmp_path))
+
+    mock_run.assert_called_once()
