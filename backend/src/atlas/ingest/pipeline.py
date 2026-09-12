@@ -63,6 +63,30 @@ def _text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
 
+def _is_public_host(hostname: str) -> bool:
+    """Reject hostnames that resolve to loopback, private, or link-local addresses.
+
+    The ingest endpoint hands untrusted URLs straight to yt-dlp, so without this
+    check a caller could point the pipeline at internal services (SSRF).
+    """
+    import ipaddress
+    import socket
+
+    try:
+        infos = socket.getaddrinfo(hostname, None)
+    except socket.gaierror:
+        return False
+    for info in infos:
+        addr = info[4][0]
+        try:
+            ip = ipaddress.ip_address(addr)
+        except ValueError:
+            return False
+        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+            return False
+    return True
+
+
 def fetch_video_transcript(url: str, workdir: str) -> Path | None:
     """Download subtitles for a video URL via yt-dlp (auto-subs fallback)."""
     import subprocess
@@ -70,6 +94,8 @@ def fetch_video_transcript(url: str, workdir: str) -> Path | None:
 
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        return None
+    if not _is_public_host(parsed.hostname or ""):
         return None
 
     out = Path(workdir)
