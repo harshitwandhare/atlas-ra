@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.6.1 — 2026-09-12
+### Fixed
+- **The ingest pipeline let a caller point the server at its own internal
+  network.** The `/ingest` endpoint hands whatever URL it's given straight to
+  yt-dlp; a request for `http://127.0.0.1/...` or an internal `10.x` address
+  would have the server fetch from itself. Added a DNS check that rejects
+  hosts resolving to loopback, private, link-local, reserved, or multicast
+  ranges before the subprocess call happens.
+- **A URL starting with a dash could be parsed as a yt-dlp flag instead of the
+  video URL.** Added a `--` separator before the URL so yt-dlp always treats
+  it as positional, closing a command-line injection alert CodeQL flagged.
+- **A malformed URL (`file://...` or one missing a host) still reached
+  `subprocess.run`.** Only the higher-level `ingest()` call checked the
+  scheme; `fetch_video_transcript` itself did not. Added the same check at
+  the point where the subprocess call is built.
+- **A transcript with a long run of unclosed `<` characters could hang the
+  procedure extractor.** The SRT/HTML tag stripper backtracked quadratically
+  on that input; bounded the tag body length so the worst case stays linear.
+- **Sharp 0.35.3 had two high-severity libheif CVEs**, pulled in transitively
+  through Next.js. Bumped the pinned override to 0.35.4.
+- Cleaned up two CodeQL noise alerts in the test suite (a redundant import and
+  a no-op lambda) that weren't actual bugs.
+
 ## 0.6.0 — 2026-08-15
 ### Changed
 - React 18 → 19 and Next.js 15.5 → 16.3, landed as separate steps so each was
