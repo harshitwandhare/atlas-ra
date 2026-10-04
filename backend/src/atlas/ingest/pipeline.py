@@ -87,10 +87,19 @@ def _is_public_host(hostname: str) -> bool:
     return True
 
 
+_SAFE_URL_RE = __import__("re").compile(r"^https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
+
+
 def fetch_video_transcript(url: str, workdir: str) -> Path | None:
     """Download subtitles for a video URL via yt-dlp (auto-subs fallback)."""
     import subprocess
     from urllib.parse import urlparse
+
+    # Validate the URL against a strict allowlist of safe URL characters
+    # before passing it to the subprocess; this is an additional layer on
+    # top of the scheme and SSRF checks below.
+    if not _SAFE_URL_RE.match(url):
+        return None
 
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https") or not parsed.netloc:

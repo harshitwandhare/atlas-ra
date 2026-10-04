@@ -23,4 +23,4 @@ class AgentProvider(Protocol):
         context: str,
     ) -> AsyncIterator[AgentEvent]:
         """Execute a task, yielding normalized events until DONE or ERROR."""
-        ...
+        pass
