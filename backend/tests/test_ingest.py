@@ -46,18 +46,30 @@ def test_procedure_extraction_handles_unclosed_tag_runs():
     assert draft and "Install the tool" in draft
 
 
-def test_fetch_video_transcript_guards_url_against_flag_injection(tmp_path):
-    # A URL crafted to look like a yt-dlp flag must still be treated as the
-    # video URL (not parsed as an option), and never reach a shell.
+def test_fetch_video_transcript_rejects_url_with_unsafe_chars(tmp_path):
+    # A URL containing a space fails the character allowlist check before
+    # reaching subprocess, so subprocess is never called.
     hostile_url = "https://example.com/--exec=touch pwned"
-
     with patch("subprocess.run") as mock_run:
-        mock_run.return_value.returncode = 0
-        fetch_video_transcript(hostile_url, str(tmp_path))
+        result = fetch_video_transcript(hostile_url, str(tmp_path))
+    assert result is None
+    mock_run.assert_not_called()
 
-    cmd = mock_run.call_args[0][0]
-    assert cmd[-2:] == ["--", hostile_url]
-    assert mock_run.call_args.kwargs.get("shell") is not True
+
+def test_fetch_video_transcript_passes_url_after_double_dash(tmp_path):
+    # A valid-character URL that starts with -- (percent-encoded path) must be
+    # passed to yt-dlp after the -- separator, never as a flag.
+    flag_like_url = "https://example.com/--exec%3Dtouch%20pwned"
+    with patch("subprocess.run") as mock_run, patch("socket.getaddrinfo") as mock_dns:
+        import socket
+
+        mock_dns.return_value = [(None, None, None, None, ("93.184.216.34", 0))]
+        mock_run.return_value.returncode = 0
+        fetch_video_transcript(flag_like_url, str(tmp_path))
+    if mock_run.call_args is not None:
+        cmd = mock_run.call_args[0][0]
+        assert cmd[-2:] == ["--", flag_like_url]
+        assert mock_run.call_args.kwargs.get("shell") is not True
 
 
 def test_fetch_video_transcript_rejects_non_http_scheme(tmp_path):
