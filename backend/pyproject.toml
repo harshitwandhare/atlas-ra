@@ -41,3 +41,9 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+
+[tool.uv]
+constraint-dependencies = [
+  "pyjwt>=2.15.0",
+  "urllib3>=2.8.0",
+]
