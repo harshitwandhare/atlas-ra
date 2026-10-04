@@ -61,8 +61,6 @@ def test_fetch_video_transcript_passes_url_after_double_dash(tmp_path):
     # passed to yt-dlp after the -- separator, never as a flag.
     flag_like_url = "https://example.com/--exec%3Dtouch%20pwned"
     with patch("subprocess.run") as mock_run, patch("socket.getaddrinfo") as mock_dns:
-        import socket
-
         mock_dns.return_value = [(None, None, None, None, ("93.184.216.34", 0))]
         mock_run.return_value.returncode = 0
         fetch_video_transcript(flag_like_url, str(tmp_path))
