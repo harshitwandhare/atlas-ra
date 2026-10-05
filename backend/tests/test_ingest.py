@@ -130,8 +130,9 @@ def test_ingest_url_no_subtitles(tmp_path):
 def test_fetch_video_transcript_dns_failure(tmp_path):
     import socket
 
-    with patch("subprocess.run") as mock_run, patch(
-        "socket.getaddrinfo", side_effect=socket.gaierror("name not found")
+    with (
+        patch("subprocess.run") as mock_run,
+        patch("socket.getaddrinfo", side_effect=socket.gaierror("name not found")),
     ):
         result = fetch_video_transcript("https://unresolvable-host-xyz.example/v=1", str(tmp_path))
 
