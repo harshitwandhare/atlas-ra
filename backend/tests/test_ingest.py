@@ -109,3 +109,32 @@ def test_fetch_video_transcript_allows_public_host(tmp_path):
         fetch_video_transcript("https://example.com/watch?v=abc", str(tmp_path))
 
     mock_run.assert_called_once()
+
+
+def test_ingest_unsupported_format(tmp_path):
+    src = tmp_path / "notes.xyz"
+    src.write_text("some content", encoding="utf-8")
+    store = SemanticStore(str(tmp_path / "sem"))
+    doc = ingest(str(src), store)
+    assert "[unsupported format" in doc.text
+    assert ".xyz" in doc.text
+
+
+def test_ingest_url_no_subtitles(tmp_path):
+    store = SemanticStore(str(tmp_path / "sem"))
+    with patch("atlas.ingest.pipeline.fetch_video_transcript", return_value=None):
+        doc = ingest("https://example.com/watch?v=abc", store)
+    assert "no subtitles found" in doc.text
+
+
+def test_fetch_video_transcript_dns_failure(tmp_path):
+    import socket
+
+    with (
+        patch("subprocess.run") as mock_run,
+        patch("socket.getaddrinfo", side_effect=socket.gaierror("name not found")),
+    ):
+        result = fetch_video_transcript("https://unresolvable-host-xyz.example/v=1", str(tmp_path))
+
+    assert result is None
+    mock_run.assert_not_called()
