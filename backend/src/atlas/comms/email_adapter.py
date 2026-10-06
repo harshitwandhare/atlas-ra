@@ -22,15 +22,12 @@ class Email:
 class EmailAdapter(Protocol):
     def fetch_unread_from(self, sender_filter: str) -> list[Email]:
         """Return unread emails matching the given sender address."""
-        ...
 
     def create_draft(self, to: str, subject: str, body: str) -> str:
         """Create a draft message and return its ID."""
-        ...
 
     def send(self, draft_id: str) -> None:
         """Send the previously created draft identified by draft_id."""
-        ...
 
 
 class ImapAdapter:
