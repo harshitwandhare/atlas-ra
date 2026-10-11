@@ -6,6 +6,7 @@ handler reports what to install instead of crashing the pipeline.
 
 from __future__ import annotations
 
+import re
 import uuid
 from collections.abc import Callable
 from pathlib import Path
@@ -87,7 +88,7 @@ def _is_public_host(hostname: str) -> bool:
     return True
 
 
-_SAFE_URL_RE = __import__("re").compile(r"^https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
+_SAFE_URL_RE = re.compile(r"^https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")
 
 
 def fetch_video_transcript(url: str, workdir: str) -> Path | None:
