@@ -32,8 +32,8 @@
     "typescript": "^6"
   },
   "overrides": {
-    "brace-expansion@1": "1.1.18",
-    "brace-expansion@2": "2.1.4",
+    "brace-expansion@1": "1.1.21",
+    "brace-expansion@2": "2.1.7",
     "fast-uri": "^3.1.5",
     "glob": "^11.0.0",
     "nanoid": "^3.3.18",
