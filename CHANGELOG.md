@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+### Fixed
+- **The ingest SSRF check let shared-address hosts through.** A host resolving to
+  `100.64.0.0/10`, which includes Alibaba Cloud's metadata service at
+  `100.100.100.200`, passed the check and reached yt-dlp, with or without an
+  IPv4-mapped IPv6 wrapper. Only globally routable addresses are accepted now.
+
 ## 0.6.1 — 2026-09-12
 ### Fixed
 - **The ingest pipeline let a caller point the server at its own internal
