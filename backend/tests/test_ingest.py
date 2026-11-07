@@ -1,4 +1,7 @@
+import socket
 from unittest.mock import patch
+
+import pytest
 
 from atlas.ingest.pipeline import fetch_video_transcript, ingest
 from atlas.ingest.procedures import extract_procedure
@@ -89,6 +92,19 @@ def test_fetch_video_transcript_rejects_url_without_host(tmp_path):
 def test_fetch_video_transcript_rejects_loopback_host(tmp_path):
     with patch("subprocess.run") as mock_run:
         result = fetch_video_transcript("http://127.0.0.1:8080/internal", str(tmp_path))
+
+    assert result is None
+    mock_run.assert_not_called()
+
+
+@pytest.mark.parametrize("addr", ["100.100.100.200", "::ffff:100.100.100.200", "::ffff:127.0.0.1"])
+def test_fetch_video_transcript_rejects_non_global_resolution(tmp_path, addr):
+    infos = [(socket.AF_INET, socket.SOCK_STREAM, 0, "", (addr, 0))]
+    with (
+        patch("socket.getaddrinfo", return_value=infos),
+        patch("subprocess.run") as mock_run,
+    ):
+        result = fetch_video_transcript("https://metadata.example/latest", str(tmp_path))
 
     assert result is None
     mock_run.assert_not_called()

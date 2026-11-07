@@ -83,7 +83,12 @@ def _is_public_host(hostname: str) -> bool:
             ip = ipaddress.ip_address(addr)
         except ValueError:
             return False
-        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+        # An IPv4-mapped IPv6 address must be judged as the IPv4 address it reaches.
+        if isinstance(ip, ipaddress.IPv6Address) and ip.ipv4_mapped:
+            ip = ip.ipv4_mapped
+        # is_global also covers shared space (100.64.0.0/10), which none of the
+        # others catch and which holds Alibaba Cloud's metadata service.
+        if not ip.is_global or ip.is_reserved or ip.is_multicast:
             return False
     return True
 
