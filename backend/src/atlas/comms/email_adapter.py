@@ -51,34 +51,38 @@ class ImapAdapter:
         import email as email_lib
         import imaplib
 
+        # Quote characters in the filter would end the IMAP string early.
+        safe_filter = sender_filter.replace("\\", "\\\\").replace('"', '\\"')
         conn = imaplib.IMAP4_SSL(self._host)
-        conn.login(self._user, self._password())
-        conn.select("INBOX")
-        _, data = conn.search(None, f'(UNSEEN FROM "{sender_filter}")')
         results = []
-        ids = data[0] if isinstance(data[0], bytes) else b""
-        for num in ids.split():
-            _, msg_data = conn.fetch(num.decode(), "(RFC822)")
-            raw = msg_data[0]
-            if not isinstance(raw, tuple):
-                continue
-            msg = email_lib.message_from_bytes(raw[1])
-            body = ""
-            for part in msg.walk():
-                if part.get_content_type() == "text/plain":
-                    payload = part.get_payload(decode=True)
-                    if isinstance(payload, bytes):
-                        body = payload.decode(errors="replace")
-                    break
-            results.append(
-                Email(
-                    id=num.decode(),
-                    sender=msg["From"] or "",
-                    subject=msg["Subject"] or "",
-                    body=body,
+        try:
+            conn.login(self._user, self._password())
+            conn.select("INBOX")
+            _, data = conn.search(None, f'(UNSEEN FROM "{safe_filter}")')
+            ids = data[0] if isinstance(data[0], bytes) else b""
+            for num in ids.split():
+                _, msg_data = conn.fetch(num.decode(), "(RFC822)")
+                raw = msg_data[0]
+                if not isinstance(raw, tuple):
+                    continue
+                msg = email_lib.message_from_bytes(raw[1])
+                body = ""
+                for part in msg.walk():
+                    if part.get_content_type() == "text/plain":
+                        payload = part.get_payload(decode=True)
+                        if isinstance(payload, bytes):
+                            body = payload.decode(errors="replace")
+                        break
+                results.append(
+                    Email(
+                        id=num.decode(),
+                        sender=msg["From"] or "",
+                        subject=msg["Subject"] or "",
+                        body=body,
+                    )
                 )
-            )
-        conn.logout()
+        finally:
+            conn.logout()
         return results
 
     def create_draft(self, to: str, subject: str, body: str) -> str:
