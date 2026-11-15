@@ -1,4 +1,5 @@
 import socket
+import sys
 from unittest.mock import patch
 
 import pytest
@@ -154,3 +155,47 @@ def test_fetch_video_transcript_dns_failure(tmp_path):
 
     assert result is None
     mock_run.assert_not_called()
+
+
+def test_fetch_video_transcript_returns_none_when_ytdlp_fails(tmp_path):
+    import subprocess
+
+    with (
+        patch("socket.getaddrinfo", return_value=[(2, 1, 6, "", ("93.184.216.34", 0))]),
+        patch("subprocess.run", side_effect=subprocess.CalledProcessError(1, "yt-dlp")),
+    ):
+        result = fetch_video_transcript("https://example.com/watch?v=abc", str(tmp_path))
+
+    assert result is None
+
+
+def test_fetch_video_transcript_returns_first_subtitle_file(tmp_path):
+    (tmp_path / "b.srt").write_text("second", encoding="utf-8")
+    (tmp_path / "a.srt").write_text("first", encoding="utf-8")
+    with (
+        patch("socket.getaddrinfo", return_value=[(2, 1, 6, "", ("93.184.216.34", 0))]),
+        patch("subprocess.run"),
+    ):
+        result = fetch_video_transcript("https://example.com/watch?v=abc", str(tmp_path))
+
+    assert result is not None and result.name == "a.srt"
+
+
+@pytest.mark.parametrize(
+    ("suffix", "module", "hint"),
+    [
+        (".pdf", "pypdf", "pypdf"),
+        (".pptx", "pptx", "python-pptx"),
+        (".docx", "docx", "python-docx"),
+    ],
+)
+def test_ingest_reports_missing_optional_dependency(tmp_path, monkeypatch, suffix, module, hint):
+    # A None entry in sys.modules makes the import raise ImportError.
+    monkeypatch.setitem(sys.modules, module, None)
+    src = tmp_path / f"file{suffix}"
+    src.write_bytes(b"")
+    store = SemanticStore(str(tmp_path / "sem"))
+
+    doc = ingest(str(src), store)
+
+    assert f"install {hint}" in doc.text
