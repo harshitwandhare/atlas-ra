@@ -7,6 +7,8 @@ handler reports what to install instead of crashing the pipeline.
 from __future__ import annotations
 
 import re
+import shutil
+import tempfile
 import uuid
 from collections.abc import Callable
 from pathlib import Path
@@ -113,8 +115,11 @@ def fetch_video_transcript(url: str, workdir: str) -> Path | None:
     if not _is_public_host(parsed.hostname or ""):
         return None
 
-    out = Path(workdir)
-    out.mkdir(parents=True, exist_ok=True)
+    # One directory per download. In a shared one, the lookup below would pick
+    # up subtitles left behind by an earlier video.
+    root = Path(workdir)
+    root.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(dir=root))
     cmd = [
         "yt-dlp",
         "--skip-download",
@@ -132,9 +137,13 @@ def fetch_video_transcript(url: str, workdir: str) -> Path | None:
     try:
         subprocess.run(cmd, check=True, capture_output=True, timeout=300)
     except Exception:
+        shutil.rmtree(out, ignore_errors=True)
         return None
     subs = sorted(out.glob("*.srt"))
-    return subs[0] if subs else None
+    if not subs:
+        shutil.rmtree(out, ignore_errors=True)
+        return None
+    return subs[0]
 
 
 def ingest(source: str, store: SemanticStore, workdir: str = ".atlas_ingest") -> Doc:
