@@ -117,7 +117,7 @@ wheels = [
 
 [[package]]
 name = "atlas-ra"
-version = "0.6.1"
+version = "0.6.2"
 source = { editable = "." }
 dependencies = [
     { name = "claude-agent-sdk" },

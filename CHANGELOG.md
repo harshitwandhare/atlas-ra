@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 0.6.2 - 2026-11-24
 ### Fixed
 - **Ingesting a second video could store the first video's transcript.** Every
   download shared one working directory and the first `.srt` by name won, so a
@@ -10,6 +12,12 @@
   `100.64.0.0/10`, which includes Alibaba Cloud's metadata service at
   `100.100.100.200`, passed the check and reached yt-dlp, with or without an
   IPv4-mapped IPv6 wrapper. Only globally routable addresses are accepted now.
+- **A quote in the email sender filter could change the IMAP search.** The
+  filter went straight into the search string. It is escaped now, and the
+  connection is logged out even when a fetch raises.
+- **Dependency advisories.** Refreshed certifi, mcp, Next.js, sharp,
+  brace-expansion and source-map-js past the advisories published since 0.6.1,
+  and pinned the Vercel CLI used by the deploy workflow.
 
 ## 0.6.1 — 2026-09-12
 ### Fixed
