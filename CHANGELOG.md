@@ -2,6 +2,10 @@
 
 ## Unreleased
 ### Fixed
+- **Ingesting a second video could store the first video's transcript.** Every
+  download shared one working directory and the first `.srt` by name won, so a
+  later URL, including one with no subtitles at all, could be saved to semantic
+  memory with an earlier video's text. Each download now gets its own directory.
 - **The ingest SSRF check let shared-address hosts through.** A host resolving to
   `100.64.0.0/10`, which includes Alibaba Cloud's metadata service at
   `100.100.100.200`, passed the check and reached yt-dlp, with or without an

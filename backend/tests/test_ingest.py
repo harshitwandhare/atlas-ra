@@ -1,5 +1,6 @@
 import socket
 import sys
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -169,16 +170,44 @@ def test_fetch_video_transcript_returns_none_when_ytdlp_fails(tmp_path):
     assert result is None
 
 
-def test_fetch_video_transcript_returns_first_subtitle_file(tmp_path):
-    (tmp_path / "b.srt").write_text("second", encoding="utf-8")
-    (tmp_path / "a.srt").write_text("first", encoding="utf-8")
+def _fake_ytdlp(*names):
+    """Stand in for yt-dlp: write the named subtitle files next to the -o target."""
+
+    def run(cmd, **kwargs):
+        out = Path(cmd[cmd.index("-o") + 1]).parent
+        for name in names:
+            (out / name).write_text(name, encoding="utf-8")
+
+    return run
+
+
+def _fetch_with(tmp_path, *names):
     with (
         patch("socket.getaddrinfo", return_value=[(2, 1, 6, "", ("93.184.216.34", 0))]),
-        patch("subprocess.run"),
+        patch("subprocess.run", side_effect=_fake_ytdlp(*names)),
     ):
-        result = fetch_video_transcript("https://example.com/watch?v=abc", str(tmp_path))
+        return fetch_video_transcript("https://example.com/watch?v=abc", str(tmp_path))
+
+
+def test_fetch_video_transcript_returns_first_subtitle_file(tmp_path):
+    result = _fetch_with(tmp_path, "b.srt", "a.srt")
 
     assert result is not None and result.name == "a.srt"
+
+
+def test_fetch_video_transcript_ignores_earlier_downloads(tmp_path):
+    first = _fetch_with(tmp_path, "aaa.srt")
+    second = _fetch_with(tmp_path, "zzz.srt")
+
+    assert first is not None and first.read_text(encoding="utf-8") == "aaa.srt"
+    assert second is not None and second.read_text(encoding="utf-8") == "zzz.srt"
+
+
+def test_fetch_video_transcript_without_subtitles_returns_none_and_cleans_up(tmp_path):
+    (tmp_path / "stale.srt").write_text("another video", encoding="utf-8")
+
+    assert _fetch_with(tmp_path) is None
+    assert [p.name for p in tmp_path.iterdir()] == ["stale.srt"]
 
 
 @pytest.mark.parametrize(
